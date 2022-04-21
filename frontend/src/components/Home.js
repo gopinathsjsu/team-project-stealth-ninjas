@@ -15,11 +15,22 @@ export function Home() {
                 <Col xs={4}>
                     <Form.Control placeholder="Select Place" />
                 </Col>
-                <Col xs={3}>
+                <Col xs={2}>
                     <DatePicker className="form-control" selected={startDate} onChange={(date:Date) => setStartDate(date)} />
                 </Col>
-                <Col xs={3}>
+                <Col xs={2}>
                     <DatePicker className="form-control" selected={endDate} onChange={(date:Date) => setEndDate(date)} />
+                </Col>
+                <Col xs={2}>
+                    <Form.Select aria-label="Default select example">
+                      <option>Guest count</option>
+                      <option value="1">One</option>
+                      <option value="2">Two</option>
+                      <option value="3">Three</option>
+                      <option value="4">Four</option>
+                      <option value="5">Five</option>
+                      <option value="6">Six</option>
+                    </Form.Select>
                 </Col>
                 <Col xs={2} style={{textAlign: 'right'}}>
                     <Button variant="outline-primary">Submit</Button>
