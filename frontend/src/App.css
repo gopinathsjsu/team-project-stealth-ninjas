@@ -19,9 +19,9 @@
   cursor: pointer;
 }
 
-/*.nav-buttons:not(:first-child) {
-  margin: 0px 10px;
-}*/
+.nav-buttons:not(:first-child) {
+  margin-left: 10px;
+}
 
 .main-frame {
   margin: 10px 0px;
@@ -175,6 +175,25 @@
   color: #0070BA;
 }
 
-.total_sales_count {
-  margin-left: 10px;
+.top_filter {
+  margin: 10px 0px;
+}
+
+.home.container {
+  margin-top: 10px;
+}
+
+.property_title {
+  color:  #0070BA;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.property_location {
+  font-size: 14px !important;
+}
+
+.property_card {
+  margin: 10px 0px;
 }

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { FaList, FaUserAlt, FaHeart, FaStore } from 'react-icons/fa';
+import { FaList, FaUserAlt } from 'react-icons/fa';
 import { selectIsLoggedIn } from '../selectors/appSelector';
 import { handleLogoutResponse } from '../actions/app-actions';
 
@@ -66,16 +66,18 @@ function Navbar() {
                     <a className="navbar-brand" href onClick={() => home()}>Ninja Couch</a>
                 </div>
                 <div className="col-9">
-                    <input style={{display: 'inline', width: '91%', borderTopRightRadius: 0, borderBottomRightRadius: 0}} className="form-control mr-sm-2" type="search" placeholder="Enter search text" aria-label="Search" />
-                    <Button style={{display: 'inline', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginTop: '-4px'}} variant="warning">Search</Button>
+                    {/* 
+                        <input style={{display: 'inline', width: '91%', borderTopRightRadius: 0, borderBottomRightRadius: 0}} className="form-control mr-sm-2" type="search" placeholder="Enter search text" aria-label="Search" />
+                        <Button style={{display: 'inline', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginTop: '-4px'}} variant="warning">Search</Button>
+                    */}
                 </div>
-                <div className="col-2 center-contents">
+                <div className="col-2 center-contents" style={{textAlign: 'right', marginRight: 0, paddingRight: 0}}>
                     {
                         isAuthenticated ? 
                         <button type="button" className="btn btn-light nav-buttons" title="Log out" onClick={() => logout()}>Logout</button> : 
                         <>
-                            <button type="button" className="btn btn-light nav-buttons" title="Log In" onClick={() => login()}>login</button>
-                            <button type="button" className="btn btn-light nav-buttons" title="Log In" onClick={() => register()}>register</button>
+                            <Button variant="primary" className="nav-buttons" title="Log In" onClick={() => login()}>login</Button>
+                            <Button variant="warning" className="nav-buttons" title="Log In" onClick={() => register()}>register</Button>
                         </>
                     }
                     {

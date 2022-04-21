@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import Login from './Login';
 import Navbar from './Navbar';
+import Home from './Home';
 // import Footer from './Footer';
 // import Register from './Register';
 import { useLocation } from 'react-router-dom';
@@ -55,6 +56,7 @@ export function Main() {
             </ToastContainer>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Home />} />
             </Routes>
         </>
     )
