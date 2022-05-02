@@ -26,4 +26,7 @@ We were always focusing on what's been asked as we wanted to keep it simple and 
 
 Communication has always been the key factor in our team. We had scrum calls twice a week on every thursdays and saturdays which made sure that all of us were making progress in each sprint. We used to discuss what was supposed to be done in that particular sprint and prioritizing the tasks helped us in joining all the pieces of the project easily.
 
+## Class Diagram
+
+![UpdatedClassDiagram](https://user-images.githubusercontent.com/99699489/166339026-2aa764dd-b200-4232-8298-68bdcfb2fe24.png)
 
