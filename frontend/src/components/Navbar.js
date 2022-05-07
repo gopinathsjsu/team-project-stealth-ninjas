@@ -44,9 +44,9 @@ function Navbar() {
     //     navigate('/cart');
     // }
 
-    // const purchases = () => {
-    //     navigate('./purchases');
-    // };
+    const bookings = () => {
+        navigate('./bookings');
+    };
 
     // const shop = () => {
     //     navigate('./shop');
@@ -63,7 +63,7 @@ function Navbar() {
         <nav className="navbar navbar-light bg-light justify-content-between">
             <div className="container">
                 <div className="col-1">
-                    <a className="navbar-brand" href onClick={() => home()}>Ninja Couch</a>
+                    <a className="navbar-brand" onClick={() => home()}>Ninja Couch</a>
                 </div>
                 <div className="col-9">
                     {/* 
@@ -83,6 +83,7 @@ function Navbar() {
                     {
                         isAuthenticated && (
                             <>
+                                <FaList className="nav-buttons" title="Bookings" size="3em" onClick={() => bookings()}/>
                                 <FaUserAlt className="nav-buttons" title="Profile" size="3em" />
                             </>)
                     }
