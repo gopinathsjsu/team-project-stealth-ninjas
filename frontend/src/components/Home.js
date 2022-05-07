@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Button } from 'react-bootstrap';
+import { useSelector, useDispatch } from 'react-redux';
 import DatePicker from "react-datepicker";
 import PropertyCard from "./PropertyCard";
+import { getHotels } from "../utils";
+import { useNavigate } from 'react-router-dom';
 import "react-datepicker/dist/react-datepicker.css";
 //Define a Home Component
 export function Home() {
 
+    const dispatch = useDispatch();
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const hotelsData = useSelector((state) => state.hotels.data);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        getHotels(dispatch)
+    }, [])
+
+    const openHotel = (dispatch, {id}) => {
+        navigate(`/hotel/${id}`);
+    }
 
     return (
         <div className="home container">
@@ -47,10 +61,9 @@ export function Home() {
                     <p style={{marginBottom: '5px'}} >4 properties found</p>
                 </Row>
                 <Col>
-                    <PropertyCard />
-                    <PropertyCard />
-                    <PropertyCard />
-                    <PropertyCard />
+                    {
+                        hotelsData && hotelsData.map(hotel => <PropertyCard key={hotel.id} {...hotel} fn={{openHotel}}/>)
+                    }
                 </Col>
             </Row>
         </div>

@@ -1,4 +1,7 @@
 import { handleLoginResponse, setToast, handleCountriesResponse } from './actions/app-actions';
+import { handleHotelsResponse } from './actions/app-hotels';
+import { handleBookingsResponse } from './actions/app-bookings';
+import { handleHotelDetailsResponse } from './actions/app-hotel-details';
 
 // import { useNavigate } from 'react-router-dom';
 
@@ -25,6 +28,36 @@ export function checkSession(dispatch) {
     axios.get('/api/session')
         .then(response => {
             dispatch(handleLoginResponse(response));
+        })
+        .catch(err => {
+            // console.log(err.message);
+        });
+}
+
+export function getHotels(dispatch) {
+    axios.get('/api/hotels')
+        .then(response => {
+            dispatch(handleHotelsResponse(response));
+        })
+        .catch(err => {
+            // console.log(err.message);
+        });
+}
+
+export function getBookings(dispatch) {
+    axios.get('/api/bookings')
+        .then(response => {
+            dispatch(handleBookingsResponse(response));
+        })
+        .catch(err => {
+            // console.log(err.message);
+        });
+}
+
+export function getHotelDetails(dispatch, id) {
+    axios.get(`/api/hotels/${id}`)
+        .then(response => {
+            dispatch(handleHotelDetailsResponse(response));
         })
         .catch(err => {
             // console.log(err.message);

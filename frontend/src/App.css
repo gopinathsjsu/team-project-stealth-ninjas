@@ -197,3 +197,18 @@
 .property_card {
   margin: 10px 0px;
 }
+
+.room_details {
+  margin-top: 10px !important;
+}
+
+.room_text {
+  color:  #BE5000;
+  font-size: 14px;
+  margin: 0;
+}
+
+.room_desc {
+  font-size: 14px;
+  color: #808080;
+}

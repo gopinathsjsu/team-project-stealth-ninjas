@@ -1,18 +1,29 @@
-import { Row, Col, Form, Button, Card, Image } from 'react-bootstrap';
+import { Row, Col, Button, Card, Image } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 
-export default function PropertyCard() {
+export default function PropertyCard(property) {
+
+	const dispatch = useDispatch();
+	const processClicks = (e, dispatch, functionName, params) => {
+        e.stopPropagation();
+        const {fn} = property;
+        if (fn && fn[functionName] && dispatch) {
+            fn[functionName](dispatch, params.id, params.data);
+        }
+    };
+
 	return (
 		<Card className="property_card">
           <Card.Body>
             <Row>
             <Col xs={2}>
-                <Image src="https://t-cf.bstatic.com/xdata/images/hotel/square600/130456384.webp?k=b8cf7d16bdf688ba5549c22ebe1a4b59484f2f9aa59fc88d1d42952c696133e2&o=&s=1" width="150" />
+                <Image src={property.image_url} width="150" />
             </Col>
             <Col xs={10}>
-                <Card.Title class="property_title">Ninja Red Grape Castle</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted property_location">North 2nd Street, San Jose</Card.Subtitle>
+                <Card.Title className="property_title" onClick={(e) => processClicks(e, dispatch, 'openHotel', { id: property })}>{property.name}</Card.Title>
+                <Card.Subtitle className="mb-2 text-muted property_location">{property.location}</Card.Subtitle>
                 <Card.Text>
-                  Located at the prime location of San Jose, the property has brilliant amenities with Starbucks and Subway chains nearby.
+                  {property.description}
                 </Card.Text>
                 <Row style={{textAlign: 'right'}}>
                     <Col>

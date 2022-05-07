@@ -7,8 +7,10 @@ import {
 import Login from './Login';
 import Navbar from './Navbar';
 import Home from './Home';
+import HotelDetails from './HotelDetails';
+import Bookings from './Bookings';
 // import Footer from './Footer';
-// import Register from './Register';
+import Register from './Register';
 import { useLocation } from 'react-router-dom';
 import { checkSession } from '../utils';
 import { Toast, ToastContainer } from 'react-bootstrap';
@@ -56,6 +58,9 @@ export function Main() {
             </ToastContainer>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/bookings" element={<Bookings />} />
+              <Route path="/hotel/:hotelID" element={<HotelDetails />} />
               <Route path="/" element={<Home />} />
             </Routes>
         </>
