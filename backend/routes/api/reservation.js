@@ -81,4 +81,32 @@ router.post("/bookrooms", checkAuth, (req, res) => {
   }
 });
 
+router.get("/getmybookings", checkAuth, async (req, res) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  console.log(req.user);
+
+  let cust_email = req.user[0].cust_email;
+  try {
+    connection.query(
+      `select * from reservation where cust_email=?`,
+      [cust_email],
+      function (error, results) {
+        if (results.length !== 0) {
+          res.status(200).json({ success: true, results });
+        } else {
+          res.send("failure");
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
 module.exports = router;
