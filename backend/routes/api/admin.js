@@ -69,4 +69,56 @@ router.post("/addhotel", [], async (req, res) => {
     res.send("database error");
   }
 });
+
+// admin adding the room
+router.post("/addroom", [], async (req, res) => {
+  console.log(req.body);
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  const { roomtypename, hotel_id, numberofrooms } = req.body;
+  //const {hotel_id} = req.params;
+  try {
+    connection.query(
+      `SELECT hotelbaseprice from hotel where hotel_id= ?`,
+      hotel_id,
+      function (error, results) {
+        const { hotelbaseprice } = results[0];
+        connection.query(
+          `SELECT maxguests,description,cost from room_type where roomtypename= ?`,
+          roomtypename,
+          function (error, results1) {
+            const { maxguests, description, cost } = results1[0];
+            for (let i = 0; i < numberofrooms; i++) {
+              connection.query(
+                `INSERT INTO room(roomtypename,hotel_id,maxguests,description,roombaseprice) values(?,?,?,?,?)`,
+                [
+                  roomtypename,
+                  hotel_id,
+                  maxguests,
+                  description,
+                  cost * hotelbaseprice,
+                ],
+                function (error, results2) {
+                  if (error) throw error;
+                  console.log("values added");
+                }
+              );
+            }
+          }
+        );
+
+        res.json({ success: true });
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("database error");
+  }
+});
+
+
 module.exports = router;
