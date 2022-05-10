@@ -120,5 +120,33 @@ router.post("/addroom", [], async (req, res) => {
   }
 });
 
+// listing all the hotels for admin and he can filter based on the city name if required.
+router.get("/getallhotels", [], async (req, res) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  const city = req.query.city;
+  try {
+    let temp = `'%${city}%'`;
+    connection.query(
+      `SELECT * FROM hotel WHERE city like ${temp}`,
+      function (error, results) {
+        if (results.length !== 0) {
+          res.json({ success: true, data: results });
+        } else {
+          res.send("failure");
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
+
 
 module.exports = router;
