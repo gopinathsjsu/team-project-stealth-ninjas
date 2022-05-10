@@ -109,4 +109,36 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
   }
 });
 
+// modifying the reservation
+router.post("/modifybooking", async (req, res) => {
+  console.log(req.body);
+  const {
+    reservation_id,
+    room_id,
+    booking_date,
+    start_date,
+    end_date,
+    amount,
+  } = req.body;
+  try {
+    connection.query(
+      `UPDATE reservation set room_id=?, booking_date=?, start_date=?, end_date=?, amount=? where reservation_id=?`,
+      [room_id, booking_date, start_date, end_date, amount, reservation_id],
+      function (error, results) {
+        //console.log(results);
+        if (error) {
+          res.send("failure");
+        } else {
+          res.status(200).json({
+            success: true,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
 module.exports = router;
