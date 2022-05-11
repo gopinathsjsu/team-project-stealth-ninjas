@@ -77,8 +77,7 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                     if (error3) {
                       res.send("failure");
                     }
-                  }
-                );
+                 else {
                 connection.query(
                   `SELECT reward_points from customer where cust_email =?`,
                   [cust_email],
@@ -97,6 +96,9 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                               if (error4) {
                                 res.send("failure");
                               }
+                              else {
+                                res.json({success: true});
+                              }
                             }
                           );
                         }
@@ -109,6 +111,9 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                               if (error5) {
                                 res.send("failure");
                               }
+                              else{
+                                res.json({success: true});
+                              }
                             }
                           );
                         }
@@ -120,8 +125,11 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                 );
               }
             }
+                )
+            }
+            }
           );
-          res.json({success: true});
+          
         } else {
           res.send({success: false, message: "hw server error"});
         }

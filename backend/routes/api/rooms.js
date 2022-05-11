@@ -68,7 +68,7 @@ router.post("/getrooms", checkAuth, (req, res) => {
         function (error, hotel_results) {
           connection.query(
             `select roomtypename,maxguests,description,roombaseprice,count(*) as numberofrooms from room  where room.hotel_id=? and room.room_id not
-    in (select room_id from reservation where start_date between ? and ? or end_date between ? and ?) group by roomtypename`,
+    in (select room_id from reservation where start_date between ? and ? or end_date between ? and ?) group by roomtypename order by roombaseprice`,
             [hotel_id, start_date, end_date, start_date, end_date],
             function (error, results) {
               //console.log(typeof(start_date))
