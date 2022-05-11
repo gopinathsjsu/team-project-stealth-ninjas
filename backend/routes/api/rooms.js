@@ -35,7 +35,8 @@ router.post("/getrooms", checkAuth, (req, res) => {
   let christmas_start_date = new Date("12/20/2022");
   let christmas_end_date = new Date("01/10/2023");
   let customer_type = req.user.customer_type;
-  let customer_loyalty_discount = 1;
+  let customer_loyalty_discount = 0;
+  let holidays_count = 0;
   if (customer_type == "gold") {
     customer_loyalty_discount = 0.8;
   }
@@ -107,10 +108,13 @@ router.post("/getrooms", checkAuth, (req, res) => {
                 ) {
                   //console.log("in summer season if codition")
                   for (let i = 0; i < results.length; i++) {
-                    results[i].roombaseprice = Math.trunc(
+                    results[i].roomdiscountedprice = Math.trunc(
                       customer_loyalty_discount *
                         days *
                         results[i].roombaseprice
+                    );
+                    results[i].roombaseprice = Math.trunc(
+                      days * results[i].roombaseprice
                     );
                   }
                   res.json({
@@ -152,20 +156,20 @@ router.post("/getrooms", checkAuth, (req, res) => {
                     ) {
                       //console.log("+");
                       if (d.getDay() == 0 || d.getDay() == 6) {
-                        weekend_days++;
+                        holidays_count++;
                         console.log(
                           "in final",
                           d.getDate(),
                           "get the day",
                           d.getDay(),
                           "days count",
-                          weekend_days
+                          holidays_count
                         );
                       }
                     }
                   }
 
-                  console.log("weekend count", weekend_days);
+                  console.log("weekend count", holidays_count);
 
                   let holidays = [
                     new Date("05/18/2022"),
@@ -197,23 +201,27 @@ router.post("/getrooms", checkAuth, (req, res) => {
                       !(d == 0 || d == 6)
                     ) {
                       //console.log("in if loop")
-                      totalHolidays = totalHolidays + 1;
+                      holidays_count = holidays_count + 1;
                     }
                   }
-                  console.log("total actual holidays", totalHolidays);
+                  console.log("total actual holidays", holidays_count);
 
                   for (let i = 0; i < results.length; i++) {
                     console.log(
                       results[i].roombaseprice,
                       customer_loyalty_discount,
-                      totalHolidays,
+                      holidays_count,
                       days,
-                      days - totalHolidays
+                      days - holidays_count
                     );
-                    results[i].roombaseprice = Math.trunc(
+                    results[i].roomdiscountedprice = Math.trunc(
                       customer_loyalty_discount *
                         results[i].roombaseprice *
-                        (days - totalHolidays + totalHolidays * 1.1)
+                        (days - holidays_count + holidays_count * 1.1)
+                    );
+                    results[i].roombaseprice = Math.trunc(
+                      results[i].roombaseprice *
+                        (days - holidays_count + holidays_count * 1.1)
                     );
                   }
                   //res.send(JSON.stringify(results));

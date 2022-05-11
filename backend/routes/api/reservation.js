@@ -68,12 +68,62 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                 console.log(error1);
                 res.send("failure");
               } else {
-                res.json({ success: true });
+                let rewardpoints = Math.trunc(0.01 * amount);
+                console.log("rewardpoint", rewardpoints);
+                connection.query(
+                  `UPDATE customer set reward_points=(reward_points+?) where cust_email =?`,
+                  [rewardpoints, cust_email],
+                  function (error3, results3) {
+                    if (error3) {
+                      res.send("failure");
+                    }
+                  }
+                );
+                connection.query(
+                  `SELECT reward_points from customer where cust_email =?`,
+                  [cust_email],
+                  function (error2, results2) {
+                    if (error2) {
+                      res.send("failure");
+                    } else {
+                      if (results2) {
+                        let reward_points = results2[0].reward_points;
+                        if (reward_points > 100) {
+                          const customer_type = "gold";
+                          connection.query(
+                            `UPDATE customer set customer_type=? where cust_email =?`,
+                            [customer_type, cust_email],
+                            function (error4, results4) {
+                              if (error4) {
+                                res.send("failure");
+                              }
+                            }
+                          );
+                        }
+                        if (reward_points > 50 && reward_points <= 100) {
+                          const customer_type = "silver";
+                          connection.query(
+                            `UPDATE customer set customer_type=? where cust_email =?`,
+                            [customer_type, cust_email],
+                            function (error5, results5) {
+                              if (error5) {
+                                res.send("failure");
+                              }
+                            }
+                          );
+                        }
+                      } else {
+                        res.send("failure");
+                      }
+                    }
+                  }
+                );
               }
             }
           );
+          res.json({success: true});
         } else {
-          res.send("hw server error");
+          res.send({success: false, message: "hw server error"});
         }
       }
     );
@@ -95,7 +145,7 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
   const cust_email = req.user.cust_email;
   const dbQuery = util.promisify(connection.query).bind(connection);
   try {
-    const results = await dbQuery(`select * from reservation where cust_email=?`, [cust_email]);
+    const results = await dbQuery(`select * from reservation where cust_email=? order by reservation_id DESC`, [cust_email]);
     const rawHotelIDs = pluck(results, 'hotel_id');
     const hotelIDs = uniq(rawHotelIDs);
     const hotelDetails = await dbQuery(`select * from hotel where hotel_id IN (?)`, [hotelIDs]);
@@ -294,6 +344,31 @@ router.post("/modifybooking", async (req, res) => {
     connection.query(
       `UPDATE reservation set room_id=?, booking_date=?, start_date=?, end_date=?, amount=? where reservation_id=?`,
       [room_id, booking_date, start_date, end_date, amount, reservation_id],
+      function (error, results) {
+        //console.log(results);
+        if (error) {
+          res.send("failure");
+        } else {
+          res.status(200).json({
+            success: true,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
+  
+router.post("/cancelbooking", async (req, res) => {
+  console.log(req.body);
+  const { reservation_id } = req.body;
+  try {
+    connection.query(
+      `Delete from reservation where reservation_id = ?`,
+      [reservation_id],
       function (error, results) {
         //console.log(results);
         if (error) {

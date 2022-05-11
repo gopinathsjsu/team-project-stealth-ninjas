@@ -91,18 +91,6 @@ router.post("/addhotel", [], async (req, res) => {
   }
 });
 
-// admin adding the room
-router.post("/addroom", [], async (req, res) => {
-  console.log(req.body);
-  const errors = validationResult(req);
-  console.log(errors);
-  if (!errors.isEmpty()) {
-    //res.send(errors.code);
-    return res.status(500).json({ errors: errors.array() });
-  }
-  
-});
-
 // listing all the hotels for admin and he can filter based on the city name if required.
 router.get("/getallhotels", [], async (req, res) => {
   const errors = validationResult(req);
@@ -154,6 +142,58 @@ router.get("/getbookings", [], async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.send("server error");
+  }
+});
+
+//admin editing a hotel
+router.put("/edithotel", [], async (req, res) => {
+  console.log(req.body);
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  const {
+    hotel_name,
+    hotel_addr,
+    hotel_phone,
+    city,
+    summary,
+    description,
+    hotelbaseprice,
+    image,
+    hotel_id,
+  } = req.body;
+  try {
+    connection.query(
+      `UPDATE hotel set hotel_name=?, hotel_addr=?, hotel_phone=?,city=?,summary=?,description=?,hotelbaseprice=?,image=? where hotel_id=?`,
+      [
+        hotel_name,
+        hotel_addr,
+        hotel_phone,
+        city,
+        summary,
+        description,
+        hotelbaseprice,
+        image,
+        hotel_id,
+      ],
+      function (error, results) {
+        if (error) {
+          //res.send(error.code);
+          res.status(400).json("failure");
+        } else {
+          res.json({
+            success: true,
+            results,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("database error");
   }
 });
 

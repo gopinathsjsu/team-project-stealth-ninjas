@@ -127,9 +127,8 @@ router.post(
                 if (err) {
                   throw err;
                 } else if (!isMatch) {
-                  res.status(401).json({success: false, message: "Login failed. Please check your credentials."});
+                  res.status(401).send("failure");
                 } else {
-                  // console.log("in else", results[0].cust_email);
                   const payload = { cust_email: results[0].cust_email };
                   const token = jwt.sign(payload, secret, {
                     expiresIn: 10080000,
