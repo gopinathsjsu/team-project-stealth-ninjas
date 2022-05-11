@@ -1,10 +1,11 @@
 import { Row, Col, Button, Card, Image } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
+import { getShortDate } from '../utils';
 
 export default function BookingCard(property) {
 
 	const dispatch = useDispatch();
-	const processClicks = (e, dispatch, functionName, params) => {
+	const processClicks = (e, functionName, params) => {
         e.stopPropagation();
         const {fn} = property;
         if (fn && fn[functionName] && dispatch) {
@@ -17,18 +18,21 @@ export default function BookingCard(property) {
           <Card.Body>
             <Row>
             <Col xs={1}>
-                <Image src={property.image_url} width="100" />
+                <Image src={property.hotel.image} width="100" />
             </Col>
             <Col xs={11} style={{paddingLeft: '25px'}}>
-                <Card.Title className="property_title" onClick={(e) => processClicks(e, dispatch, 'openHotel', { id: property })}>{property.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted property_location">{property.location}</Card.Subtitle>
+                <Card.Title className="property_title">{property.hotel.hotel_name} <span style={{position: 'absolute', right: '20px', color: '#000000'}}>${Math.trunc(property.amount)}</span></Card.Title>
+                <Card.Subtitle className="mb-2 text-muted property_location">{property.hotel.hotel_addr}, {property.hotel.city}</Card.Subtitle>
                 <Card.Text style={{fontSize: '12px', marginBottom: '0px'}}>
-                  {property.startDate} - {property.endDate}
+                  From {getShortDate(property.start_date)} to {getShortDate(property.end_date)} for {property.numberofguests} guests
+                </Card.Text>
+                <Card.Text style={{fontSize: '12px', marginBottom: '0px', color: '#808080'}}>
+                  Booked on {getShortDate(property.booking_date)}
                 </Card.Text>
                 <Row style={{textAlign: 'right'}}>
-                    <Col style={{margin: '0', padding: '0'}}>
-                        <Button variant="warning" className="nav-buttons">Modify</Button>
-                        <Button variant="danger" className="nav-buttons">Cancel</Button>
+                    <Col style={{padding: '0', marginTop: '-28px'}}>
+                        <Button variant="warning" className="nav-buttons-bkng" onClick={(e) => processClicks(e, 'editBooking', {id: property.reservation_id})}>Modify</Button>
+                        <Button variant="danger" className="nav-buttons-bkng">Cancel</Button>
                     </Col>
                 </Row>
             </Col>
