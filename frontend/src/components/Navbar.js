@@ -3,13 +3,15 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { FaList, FaUserAlt } from 'react-icons/fa';
-import { selectIsLoggedIn } from '../selectors/appSelector';
+import { FaList, FaUserAlt, FaCircle, FaUserShield } from 'react-icons/fa';
+import { selectIsLoggedIn, selectUser } from '../selectors/appSelector';
 import { handleLogoutResponse } from '../actions/app-actions';
 
 //create the Navbar Component
 function Navbar() {
     const isAuthenticated = useSelector(selectIsLoggedIn);
+    const userDetails = useSelector(selectUser);
+    const isAdmin = userDetails && userDetails.user_role === 'admin';
     // const [searchText, setSearchText] = useState('');
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -59,11 +61,16 @@ function Navbar() {
             });
     }
 
+    const getClassName = () => {
+        const {customer_type} = userDetails;
+        return customer_type ? `usr_badge ${customer_type}` : 'usr_badge';
+    }
+
     return(
         <nav className="navbar navbar-light bg-light justify-content-between">
             <div className="container">
                 <div className="col-1">
-                    <a className="navbar-brand" onClick={() => home()}>Ninja Couch</a>
+                    <a className="navbar-brand" onClick={() => home()}>Ninja Couch {isAdmin ? <span style={{fontSize: '10px'}}>Admin</span> : ''}</a>
                 </div>
                 <div className="col-9">
                     {/* 
@@ -76,15 +83,18 @@ function Navbar() {
                         isAuthenticated ? 
                         <button type="button" className="btn btn-light nav-buttons" title="Log out" onClick={() => logout()}>Logout</button> : 
                         <>
-                            <Button variant="primary" className="nav-buttons" title="Log In" onClick={() => login()}>login</Button>
-                            <Button variant="warning" className="nav-buttons" title="Log In" onClick={() => register()}>register</Button>
+                            <Button variant="primary" className="nav-buttons-bkng" title="Log In" onClick={() => login()}>login</Button>
+                            <Button variant="warning" className="nav-buttons-bkng" title="Log In" onClick={() => register()}>register</Button>
                         </>
                     }
                     {
                         isAuthenticated && (
                             <>
-                                <FaList className="nav-buttons" title="Bookings" size="3em" onClick={() => bookings()}/>
-                                <FaUserAlt className="nav-buttons" title="Profile" size="3em" />
+                                {!isAdmin ? <>
+                                    {userDetails && userDetails.customer_type ? <span title="user rewards" className="usr_rewards"><FaCircle className={getClassName()} style={{fontSize: '10px'}} /> 12</span> : ''}
+                                    <FaList className="nav-buttons" title="Bookings" size="3em" onClick={() => bookings()}/>
+                                    </> : ''}
+                                {isAdmin ? <FaUserShield className="nav-buttons" title="Profile" size="3em" /> : <FaUserAlt className="nav-buttons" title="Profile" size="3em" /> }
                             </>)
                     }
                 </div>
