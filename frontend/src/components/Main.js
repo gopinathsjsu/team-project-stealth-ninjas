@@ -11,10 +11,12 @@ import HotelDetails from './HotelDetails';
 import Bookings from './Bookings';
 // import Footer from './Footer';
 import Register from './Register';
+import AdminDashboard from './AdminDashboard';
+import AdminHotelBookings from './AdminHotelBookings';
 import { useLocation } from 'react-router-dom';
 import { checkSession } from '../utils';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import { selectAlertFlag, selectToastFlag, selectAlertMessage, selectAlertType, selectIsLoggedIn } from '../selectors/appSelector';
+import { selectAlertFlag, selectToastFlag, selectAlertMessage, selectAlertType, selectIsLoggedIn, selectUser } from '../selectors/appSelector';
 import { clearToast } from '../actions/app-actions';
 
 //Create a Main Component
@@ -24,6 +26,8 @@ export function Main() {
     const alertMessage = useSelector(selectAlertMessage);
     const alertType = useSelector(selectAlertType);
     const isAuthenticated = useSelector(selectIsLoggedIn);
+    const userDetails = useSelector(selectUser);
+    const isAdmin = userDetails && userDetails.user_role === 'admin' ? true : false;
     const location = useLocation();
     const dispatch = useDispatch();
     const alertMapping = {
@@ -35,7 +39,7 @@ export function Main() {
     
     useEffect(() => {
         checkSession(dispatch);
-    }, []);
+    }, [dispatch]);
 
     return(
         <>
@@ -59,9 +63,11 @@ export function Main() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              {/* <Route path="/admin" element={<AdminDashboard />} /> */}
               <Route path="/bookings" element={<Bookings />} />
               <Route path="/hotel/:hotelID" element={<HotelDetails />} />
-              <Route path="/" element={<Home />} />
+              <Route path="/admin/:hotelID/bookings" element={<AdminHotelBookings />} />
+              <Route path="/" element={isAdmin ? <AdminDashboard /> : <Home />} />
             </Routes>
         </>
     )

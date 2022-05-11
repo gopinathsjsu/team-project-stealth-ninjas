@@ -20,6 +20,10 @@
 }
 
 .nav-buttons:not(:first-child) {
+  /*margin-left: 10px;*/
+}
+
+.nav-buttons-bkng:not(:first-child) {
   margin-left: 10px;
 }
 
@@ -158,6 +162,10 @@
   margin-top: 30px;
 }
 
+.property_details {
+  margin-top: 10px;
+}
+
 .fill-page {
   min-height: 50vw;
   margin-bottom: -50px;
@@ -184,6 +192,12 @@
 }
 
 .property_title {
+  color:  #000000;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.property_title_clickable {
   color:  #0070BA;
   cursor: pointer;
   font-size: 20px;
@@ -211,4 +225,54 @@
 .room_desc {
   font-size: 14px;
   color: #808080;
+}
+
+.modal-90w {
+  max-width: 70% !important;
+}
+
+.inline-filter {
+  display: inline !important;
+  width: unset !important;
+  margin: 0px 10px;
+}
+
+.filter-icons {
+  /*color: #0070BA;*/
+  font-size: 20px;
+}
+
+.user-alert {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #820000;
+  background-color: #fff3f3;
+  color: #820000;
+  border-radius: 5px;
+}
+
+.user-alert > p {
+  margin-bottom: 0;
+}
+
+.usr_badge {
+  top: -1px;
+  position: relative;
+}
+
+.usr_badge.gold {
+  color: #C9B037;
+}
+
+.usr_badge.silver {
+  color: #D7D7D7;
+}
+
+.usr_badge.bronze {
+  color: #6A3805;
+}
+
+.usr_rewards {
+  font-size: 13px;
+  position: relative;
 }
