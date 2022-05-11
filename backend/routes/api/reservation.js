@@ -63,13 +63,62 @@ router.post("/bookrooms", checkAuth, (req, res) => {
             ],
             function (error1, results1) {
               if (error1) {
-                console.log(error1);
                 res.send("failure");
               } else {
-                res.end("success");
+                let rewardpoints = Math.trunc(0.01 * amount);
+                console.log("rewardpoint", rewardpoints);
+                connection.query(
+                  `UPDATE customer set reward_points=(reward_points+?) where cust_email =?`,
+                  [rewardpoints, cust_email],
+                  function (error3, results3) {
+                    if (error3) {
+                      res.send("failure");
+                    }
+                  }
+                );
+                connection.query(
+                  `SELECT reward_points from customer where cust_email =?`,
+                  [cust_email],
+                  function (error2, results2) {
+                    if (error2) {
+                      res.send("failure");
+                    } else {
+                      if (results2) {
+                        let reward_points = results2[0].reward_points;
+                        if (reward_points > 100) {
+                          const customer_type = "gold";
+                          connection.query(
+                            `UPDATE customer set customer_type=? where cust_email =?`,
+                            [customer_type, cust_email],
+                            function (error4, results4) {
+                              if (error4) {
+                                res.send("failure");
+                              }
+                            }
+                          );
+                        }
+                        if (reward_points > 50 && reward_points <= 100) {
+                          const customer_type = "silver";
+                          connection.query(
+                            `UPDATE customer set customer_type=? where cust_email =?`,
+                            [customer_type, cust_email],
+                            function (error5, results5) {
+                              if (error5) {
+                                res.send("failure");
+                              }
+                            }
+                          );
+                        }
+                      } else {
+                        res.send("failure");
+                      }
+                    }
+                  }
+                );
               }
             }
           );
+          res.send("success");
         } else {
           res.send("hw server error");
         }
@@ -93,7 +142,7 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
   let cust_email = req.user[0].cust_email;
   try {
     connection.query(
-      `select * from reservation where cust_email=?`,
+      `select * from reservation where cust_email=? order by reservation_id DESC`,
       [cust_email],
       function (error, results) {
         if (results.length !== 0) {
@@ -109,4 +158,216 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
   }
 });
 
+// check room availability to modify the user booking
+router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
+  const { hotel_id, start_date, end_date, roomtypename, numberofguests } =
+    req.body;
+  console.log(req.user);
+  let summer_start_date = new Date("05/01/2023");
+  let summer_end_date = new Date("05/31/2023");
+  let christmas_start_date = new Date("12/20/2022");
+  let christmas_end_date = new Date("01/10/2023");
+  let customer_type = req.user[0].customer_type;
+  let customer_loyalty_discount = 1;
+  if (customer_type == "gold") {
+    customer_loyalty_discount = 0.8;
+  }
+  if (customer_type == "silver") {
+    customer_loyalty_discount = 0.9;
+  }
+  let res_start_date = new Date(start_date);
+  let res_end_date = new Date(end_date);
+  let totalHolidays = 0;
+  let guestincrementcost = 1;
+  if (numberofguests == 2) {
+    guestincrementcost = 0.7;
+  }
+  if (numberofguests == 3) {
+    guestincrementcost = 0.55;
+  }
+  if (numberofguests == 4) {
+    guestincrementcost = 0.45;
+  }
+  try {
+    connection.query(
+      `select room_id,roombaseprice from room where room.hotel_id=? and room.room_id not in (select room_id from reservation where start_date between ? and ? or 
+                end_date between ? and ?) and room.roomtypename=? LIMIT 1`,
+      [hotel_id, start_date, end_date, start_date, end_date, roomtypename],
+      function (error, results) {
+        console.log(results);
+        if (results.length !== 0) {
+          let room_id = results[0].room_id;
+          let roombaseprice = results[0].roombaseprice;
+          let diff = Math.abs(res_start_date - res_end_date); // in milliseconds
+          let ms_per_day = 1000 * 60 * 60 * 24;
+          let days = diff / ms_per_day + 1; // convert to days and add 1 for inclusive date range
+          //console.log("diff and days are ",diff,days)
+          if (
+            (res_start_date >= summer_start_date &&
+              res_start_date <= summer_end_date &&
+              res_end_date >= summer_start_date &&
+              res_end_date <= summer_end_date) ||
+            (res_start_date >= christmas_start_date &&
+              res_start_date <= christmas_end_date &&
+              res_end_date >= christmas_start_date &&
+              res_end_date <= christmas_start_date)
+          ) {
+            //console.log("in summer season if codition")
+            roombaseprice = Math.trunc(
+              customer_loyalty_discount *
+                days *
+                roombaseprice *
+                1.2 *
+                numberofguests *
+                guestincrementcost
+            );
+            res.json({ room_id, roombaseprice });
+          } else {
+            let mod = days % 7;
+            let full_weeks = (days - mod) / 7;
+
+            let totalHolidays = full_weeks * 2;
+            console.log(
+              "mod,full_weeks,weekend_days",
+              mod,
+              full_weeks,
+              totalHolidays
+            );
+
+            if (mod != 0) {
+              // iterate through remainder days
+              let startPartialWeek = new Date();
+              let endPartialWeek = res_end_date;
+              console.log("endpartialweek", endPartialWeek);
+              startPartialWeek.setTime(
+                res_end_date.getTime() - (mod - 1) * ms_per_day
+              );
+              console.log("startpartialweek", startPartialWeek);
+              for (
+                var d = startPartialWeek;
+                d <= endPartialWeek;
+                d.setDate(d.getDate() + 1)
+              ) {
+                if (d.getDay() == 0 || d.getDay() == 6) {
+                  totalHolidays++;
+                  console.log(
+                    "in final",
+                    d.getDate(),
+                    "get the day",
+                    d.getDay(),
+                    "days count",
+                    totalHolidays
+                  );
+                }
+              }
+            }
+
+            console.log("weekend count", totalHolidays);
+
+            let holidays = [
+              new Date("06/03/2022"),
+              new Date("06/20/2022"),
+              new Date("04/02/2022"),
+            ];
+            for (let i = 0; i < holidays.length; i++) {
+              console.log(holidays[i].toDateString());
+              console.log(holidays[i]);
+
+              let d = holidays[i].getDay(); //Make sure holiday is not a weekendday!
+              console.log("get day", d);
+              if (
+                holidays[i] >= res_start_date &&
+                holidays[i] <= res_end_date &&
+                !(d == 0 || d == 6)
+              ) {
+                //console.log("in if loop")
+                totalHolidays = totalHolidays + 1;
+              }
+            }
+            console.log("total actual holidays", totalHolidays);
+            console.log(
+              roombaseprice,
+              customer_loyalty_discount,
+              totalHolidays,
+              days,
+              days - totalHolidays
+            );
+            //roombaseprice = customer_loyalty_discount * roombaseprice * ((days-totalHolidays)+ (totalHolidays * 1.1))
+            roombaseprice = Math.trunc(
+              customer_loyalty_discount *
+                roombaseprice *
+                numberofguests *
+                guestincrementcost *
+                (days - totalHolidays + totalHolidays * 1.2)
+            );
+            console.log(roombaseprice);
+
+            res.json({ room_id, roombaseprice });
+          }
+        } else {
+          res.send("rooms are not available for the selected dates");
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
+// modifying the reservation
+router.post("/modifybooking", async (req, res) => {
+  console.log(req.body);
+  const {
+    reservation_id,
+    room_id,
+    booking_date,
+    start_date,
+    end_date,
+    amount,
+  } = req.body;
+  try {
+    connection.query(
+      `UPDATE reservation set room_id=?, booking_date=?, start_date=?, end_date=?, amount=? where reservation_id=?`,
+      [room_id, booking_date, start_date, end_date, amount, reservation_id],
+      function (error, results) {
+        //console.log(results);
+        if (error) {
+          res.send("failure");
+        } else {
+          res.status(200).json({
+            success: true,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
+router.post("/cancelbooking", async (req, res) => {
+  console.log(req.body);
+  const { reservation_id } = req.body;
+  try {
+    connection.query(
+      `Delete from reservation where reservation_id = ?`,
+      [reservation_id],
+      function (error, results) {
+        //console.log(results);
+        if (error) {
+          res.send("failure");
+        } else {
+          res.status(200).json({
+            success: true,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
 module.exports = router;
