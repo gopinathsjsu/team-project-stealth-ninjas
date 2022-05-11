@@ -91,7 +91,7 @@ function Navbar() {
                         isAuthenticated && (
                             <>
                                 {!isAdmin ? <>
-                                    {userDetails && userDetails.customer_type ? <span title="user rewards" className="usr_rewards"><FaCircle className={getClassName()} style={{fontSize: '10px'}} /> 12</span> : ''}
+                                    {userDetails && userDetails.customer_type ? <span title="user rewards" className="usr_rewards"><FaCircle className={getClassName()} style={{fontSize: '10px'}} /> {userDetails.reward_points}</span> : ''}
                                     <FaList className="nav-buttons" title="Bookings" size="3em" onClick={() => bookings()}/>
                                     </> : ''}
                                 {isAdmin ? <FaUserShield className="nav-buttons" title="Profile" size="3em" /> : <FaUserAlt className="nav-buttons" title="Profile" size="3em" /> }
