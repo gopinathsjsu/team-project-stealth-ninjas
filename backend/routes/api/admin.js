@@ -197,4 +197,7 @@ router.put("/edithotel", [], async (req, res) => {
   }
 });
 
-module.exports = router;
+
+
+modudule.exports = router;
+
