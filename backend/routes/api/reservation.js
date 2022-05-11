@@ -338,7 +338,8 @@ router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
 });
 
 // modifying the reservation
-router.post("/modifybooking", async (req, res) => {
+router.post("/modifybooking", checkAuth, async (req, res) => {
+  let cust_email = req.user.cust_email;
   console.log(req.body);
   const {
     reservation_id,
@@ -350,6 +351,15 @@ router.post("/modifybooking", async (req, res) => {
   } = req.body;
   try {
     connection.query(
+      `Select amount from reservation where reservation_id = ?`,
+      [reservation_id],function(error1,results1)
+      { 
+        if (error1){
+          res.send("failure");
+        } 
+        else{
+          if (results1){
+    connection.query(
       `UPDATE reservation set room_id=?, booking_date=?, start_date=?, end_date=?, amount=? where reservation_id=?`,
       [room_id, booking_date, start_date, end_date, amount, reservation_id],
       function (error, results) {
@@ -357,12 +367,87 @@ router.post("/modifybooking", async (req, res) => {
         if (error) {
           res.send("failure");
         } else {
-          res.status(200).json({
-            success: true,
-          });
+          let rewardpoints = Math.trunc((0.01 * req.body.amount)- (0.01 * results1[0].amount) ) ;
+          console.log("rewardpoint", rewardpoints);
+          connection.query(
+            `UPDATE customer set reward_points=(reward_points+(?)) where cust_email =?`,
+            [rewardpoints, cust_email],
+            function (error3, results3) {
+              if (error3) {
+                res.send("failure");
+              }
+           else {
+          connection.query(
+            `SELECT reward_points from customer where cust_email =?`,
+            [cust_email],
+            function (error2, results2) {
+              if (error2) {
+                res.send("failure");
+              } else {
+                if (results2) {
+                  let reward_points = results2[0].reward_points;
+                  if (reward_points > 100) {
+                    const customer_type = "gold";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error4, results4) {
+                        if (error4) {
+                          res.send("failure");
+                        }
+                        else {
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                  if (reward_points <= 50 ) {
+                    const customer_type = "bronze";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error6, results6) {
+                        if (error6) {
+                          res.send("failure");
+                        }
+                        else {
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                  if (reward_points > 50 && reward_points <= 100) {
+                    const customer_type = "silver";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error5, results5) {
+                        if (error5) {
+                          res.send("failure");
+                        }
+                        else{
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                } else {
+                  res.send("failure");
+                }
+              }
+            }
+          );
         }
       }
-    );
+          )
+        }
+      }
+    );}
+    else{
+      res.send("failure");
+    }
+        }
+      })
   } catch (err) {
     console.error(err.message);
     res.send("server error");
@@ -370,10 +455,21 @@ router.post("/modifybooking", async (req, res) => {
 });
 
   
-router.post("/cancelbooking", async (req, res) => {
+router.post("/cancelbooking", checkAuth, async (req, res) => {
+  let cust_email = req.user.cust_email;
   console.log(req.body);
   const { reservation_id } = req.body;
   try {
+    connection.query(
+      `Select amount from reservation where reservation_id = ?`,
+      [reservation_id],function(error1,results1)
+      { 
+        if (error1){
+          res.send("failure");
+        } 
+        else {
+          if(results1)
+          {
     connection.query(
       `Delete from reservation where reservation_id = ?`,
       [reservation_id],
@@ -382,12 +478,84 @@ router.post("/cancelbooking", async (req, res) => {
         if (error) {
           res.send("failure");
         } else {
-          res.status(200).json({
-            success: true,
-          });
+          let rewardpoints = Math.trunc(0.01 * results1[0].amount);
+          console.log("rewardpoint", rewardpoints);
+          connection.query(
+            `UPDATE customer set reward_points=(reward_points-?) where cust_email =?`,
+            [rewardpoints, cust_email],
+            function (error3, results3) {
+              if (error3) {
+                res.send("failure");
+              }
+           else {
+          connection.query(
+            `SELECT reward_points from customer where cust_email =?`,
+            [cust_email],
+            function (error2, results2) {
+              if (error2) {
+                res.send("failure");
+              } else {
+                if (results2) {
+                  let reward_points = results2[0].reward_points;
+                  if (reward_points > 100) {
+                    const customer_type = "gold";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error4, results4) {
+                        if (error4) {
+                          res.send("failure");
+                        }
+                        else {
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                  if (reward_points <= 50 ) {
+                    const customer_type = "bronze";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error6, results6) {
+                        if (error6) {
+                          res.send("failure");
+                        }
+                        else {
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                  if (reward_points > 50 && reward_points <= 100) {
+                    const customer_type = "silver";
+                    connection.query(
+                      `UPDATE customer set customer_type=? where cust_email =?`,
+                      [customer_type, cust_email],
+                      function (error5, results5) {
+                        if (error5) {
+                          res.send("failure");
+                        }
+                        else{
+                          res.json({success: true});
+                        }
+                      }
+                    );
+                  }
+                } else {
+                  res.send("failure");
+                }
+              }
+            }
+          );
         }
       }
-    );
+          )
+        }
+      }
+    )}else {
+      res.send("failure");
+    }}})
   } catch (err) {
     console.error(err.message);
     res.send("server error");
