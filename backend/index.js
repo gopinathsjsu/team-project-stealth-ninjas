@@ -76,6 +76,7 @@ app.post('/logout', (req, res) => {
   req.session.destroy(()=>{
     // destroy session data
     req.session = null;
+    res.clearCookie("nc_token");
     res.json({success: true});
   });
 });
