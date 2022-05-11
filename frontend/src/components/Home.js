@@ -1,54 +1,117 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Form, Button } from 'react-bootstrap';
+import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import DatePicker from "react-datepicker";
 import PropertyCard from "./PropertyCard";
-import { getHotels } from "../utils";
+import { getHotels, getShortDate } from "../utils";
 import { useNavigate } from 'react-router-dom';
+import { Country, State, City }  from 'country-state-city';
+import { Typeahead } from 'react-bootstrap-typeahead';
 import "react-datepicker/dist/react-datepicker.css";
 //Define a Home Component
 export function Home() {
 
     const dispatch = useDispatch();
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [searchForm, setSearchForm] = useState({
+        place: '',
+        startDate: new Date(),
+        endDate: new Date()
+    });
+    const [state, setState] = useState([
+        {
+            "name": "California",
+            "isoCode": "CA",
+            "countryCode": "US",
+            "latitude": "36.77826100",
+            "longitude": "-119.41793240"
+        }
+    ]);
+    const [value, setValue] = useState([
+        {
+            "name": "San Jose",
+            "countryCode": "US",
+            "stateCode": "CA",
+            "latitude": "37.33939000",
+            "longitude": "-121.89496000"
+        }
+    ]);
+    const [cities, setCities] = useState([]);
     const hotelsData = useSelector((state) => state.hotels.data);
+    const loading = useSelector((state) => state.hotels.loading);
     const navigate = useNavigate();
 
     useEffect(() => {
-        getHotels(dispatch)
+        getHotels(dispatch);
+        setCities(City.getCitiesOfState('US', 'CA'));
     }, [])
 
-    const openHotel = (dispatch, {id}) => {
-        navigate(`/hotel/${id}`);
+    const openHotel = (dispatch, {hotel_id}) => {
+        const {startDate, endDate} = searchForm;
+        navigate(`/hotel/${hotel_id}?startDate=${getShortDate(startDate)}&endDate=${getShortDate(endDate)}`);
     }
+
+    const submit = () => {
+        console.log(searchForm);
+        const [lclcity] = value;
+        const [stateValue] = state;
+        console.log('value -> ', state);
+        const temp = {
+            ...searchForm,
+            place: lclcity.name
+        };
+        // place lowercase joining must be removed later
+        console.log(temp);
+        getHotels(dispatch, temp);
+    }
+
+    const onFormChange = (e) => {
+        const fieldName = e.target.getAttribute('id');
+        const tempForm = {...searchForm};
+        tempForm[fieldName] = e.target.value;
+        setSearchForm(tempForm);
+    }
+
+    const onStateChange = (selected) => {
+        setState(selected);
+        console.log(selected);
+        const [state] = selected;
+        console.log('state -> ', state);
+        setCities(City.getCitiesOfState(state.countryCode, state.isoCode));
+    }
+    // console.log(City.getAllCities())
+    // console.log(State.getAllStates())
 
     return (
         <div className="home container">
             <Row className="top_filter">
-                <Col xs={4}>
-                    <Form.Control placeholder="Select Place" />
+                <Col xs={3}>
+                    <Typeahead
+                      id="city"
+                      onChange={selected => {
+                        setValue(selected)
+                      }}
+                      labelKey={option => `${option.name}`}
+                      options={cities}
+                      selected={value}
+                    />
+                </Col>
+                <Col xs={3}>
+                    <Typeahead xs={1}
+                      id="state"
+                      onChange={onStateChange}
+                      labelKey={option => `${option.name} ${option.countryCode}`}
+                      options={State.getAllStates()}
+                      selected={state}
+                    />
                 </Col>
                 <Col xs={2}>
-                    <DatePicker className="form-control" selected={startDate} onChange={(date:Date) => setStartDate(date)} />
+                    <DatePicker className="form-control" selected={searchForm.startDate} onChange={(date:Date) => setSearchForm({...searchForm, startDate: date})} />
                 </Col>
                 <Col xs={2}>
-                    <DatePicker className="form-control" selected={endDate} onChange={(date:Date) => setEndDate(date)} />
+                    <DatePicker className="form-control" selected={searchForm.endDate} onChange={(date:Date) => setSearchForm({...searchForm, endDate: date})} />
                 </Col>
                 <Col xs={2}>
-                    <Form.Select aria-label="Default select example">
-                      <option>Guest count</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                      <option value="4">Four</option>
-                      <option value="5">Five</option>
-                      <option value="6">Six</option>
-                    </Form.Select>
-                </Col>
-                <Col xs={2} style={{textAlign: 'right'}}>
-                    <Button variant="outline-primary">Submit</Button>
-                    <Button variant="outline-secondary" style={{marginLeft: '10px'}}>Clear</Button>
+                    <Button variant="outline-primary" style={{width: '100%'}} onClick={() => submit()}>Submit</Button>
                 </Col>
             </Row>
             <Row>
@@ -57,14 +120,24 @@ export function Home() {
                         <p>other filters will come here</p>
                     </Col>
                 */}
-                <Row>
-                    <p style={{marginBottom: '5px'}} >4 properties found</p>
-                </Row>
-                <Col>
-                    {
-                        hotelsData && hotelsData.map(hotel => <PropertyCard key={hotel.id} {...hotel} fn={{openHotel}}/>)
-                    }
-                </Col>
+                {
+                    loading ? <Spinner animation="border" size="lg" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner> : 
+                        <>
+                            <Row>
+                                { hotelsData ? <p style={{marginBottom: '5px'}} >{hotelsData.length} properties found</p> : 
+                                    <p style={{marginBottom: '5px'}} >No properties found</p>
+                                }
+                            </Row>
+                            <Col>
+                                {
+                                    hotelsData && hotelsData.map(hotel => <PropertyCard key={hotel.hotel_id} {...hotel} fn={{openHotel}}/>)
+                                }
+                            </Col>
+                        </>
+                }
+                
             </Row>
         </div>
     )
