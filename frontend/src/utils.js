@@ -1,11 +1,17 @@
 import { handleLoginResponse, setToast, handleCountriesResponse } from './actions/app-actions';
-import { handleHotelsResponse } from './actions/app-hotels';
-import { handleBookingsResponse } from './actions/app-bookings';
-import { handleHotelDetailsResponse } from './actions/app-hotel-details';
+import { handleHotelsResponse, hotelsLoading } from './actions/app-hotels';
+import { handleAdminHotelsResponse, adminHotelsLoading } from './actions/app-admin-hotels';
+import { handleBookingsResponse, bookingsLoading } from './actions/app-bookings';
+import { handleHotelDetailsResponse, hotelDetailsLoading } from './actions/app-hotel-details';
 
+import moment from 'moment';
 // import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
+
+export function getShortDate(inputDate) {
+    return moment(inputDate).format("YYYY-MM-DD");
+}
 
 export function register(dispatch, data, callback) {
     // const navigate = useNavigate();
@@ -18,14 +24,14 @@ export function register(dispatch, data, callback) {
                 return callback(null, true);
                 // navigate('login');
             } else {
-                return callback(true);
                 console.log('Registration failure');
+                return callback(true);
             }
         });
 }
 
 export function checkSession(dispatch) {
-    axios.get('/api/session')
+    axios.get('/api/v1/session')
         .then(response => {
             dispatch(handleLoginResponse(response));
         })
@@ -34,8 +40,28 @@ export function checkSession(dispatch) {
         });
 }
 
-export function getHotels(dispatch) {
-    axios.get('/api/hotels')
+export function getAllHotels(dispatch, params) {
+    const queryParams = params ? {
+        city: params.place
+    } : {};
+    dispatch(adminHotelsLoading());
+    axios.get('/api/admin/getallhotels', {params: queryParams})
+        .then(response => {
+            dispatch(handleAdminHotelsResponse(response));
+        })
+        .catch(err => {
+            // console.log(err.message);
+        });
+}
+
+export function getHotels(dispatch, params) {
+    const queryParams = params ? {
+        city: params.place,
+        start_date: moment(params.startDate).format("YYYY-MM-DD"),
+        end_date: moment(params.endDate).format("YYYY-MM-DD")
+    } : {};
+    dispatch(hotelsLoading());
+    axios.get('/api/hotel/gethotels', {params: queryParams})
         .then(response => {
             dispatch(handleHotelsResponse(response));
         })
@@ -45,7 +71,8 @@ export function getHotels(dispatch) {
 }
 
 export function getBookings(dispatch) {
-    axios.get('/api/bookings')
+    dispatch(bookingsLoading());
+    axios.get('/api/reservation/getmybookings')
         .then(response => {
             dispatch(handleBookingsResponse(response));
         })
@@ -54,12 +81,130 @@ export function getBookings(dispatch) {
         });
 }
 
-export function getHotelDetails(dispatch, id) {
-    axios.get(`/api/hotels/${id}`)
+export function getHotelDetails(dispatch, {hotelID, startDate, endDate}) {
+    const hotelObj = {
+       "hotel_id": hotelID,
+       "start_date": startDate,
+       "end_date": endDate,
+       "daily_continental_breakfast": 0,
+       "access_to_swimming_pool": 0,
+       "access_to_fitness_room": 0,
+       "daily_parking":0
+    };
+    dispatch(hotelDetailsLoading());
+    axios.post(`/api/rooms/getrooms`, hotelObj)
         .then(response => {
             dispatch(handleHotelDetailsResponse(response));
         })
         .catch(err => {
             // console.log(err.message);
         });
+}
+
+export function uploadImageToCloud(dispatch, file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('cloud_name', 'dac0hzhv5')
+    formData.append('upload_preset', 'j8gp4zov')
+
+    return axios.post(
+      'https://api.cloudinary.com/v1_1/dac0hzhv5/image/upload',
+      formData
+    );
+}
+
+export function addProperty(dispatch, params, callback) {
+    axios.post(`/api/admin/addhotel`, params)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                callback(null, true);
+                dispatch(setToast({
+                    type: 'success',
+                    message: 'Property added successfully!'
+                }));
+                getAllHotels(dispatch, params.shop_id);
+            }
+            callback(true);
+        });
+}
+
+export function modifyProperty(dispatch, params, callback) {
+    const {hotel_id: id} = params;
+    delete params.id;
+    axios.put(`/api/property/${id}`, params)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                callback(null, true);
+                dispatch(setToast({
+                    type: 'success',
+                    message: 'Property modified successfully!'
+                }));
+                getAllHotels(dispatch, params.shop_id);
+            }
+            callback(true);
+        });
+}
+
+export async function getRoomTypes() {
+    const results = await axios.get(`/api/rooms/room_types`);
+    // console.log(results.data/);
+    return results.data.data;
+}
+
+export function filterHotelsWithAmenities(data) {
+    const { hotel_id, start_date, end_date } = data;
+    const tempObj = {
+       hotel_id, start_date, end_date,
+       "daily_continental_breakfast": data['daily_continental_breakfast'] ? 1 : 0,
+       "access_to_swimming_pool": !!data['access_to_swimming_pool'] ? 1 : 0,
+       "access_to_fitness_room": !!data['access_to_fitness_room'] ? 1 : 0,
+       "daily_parking":!!data['daily_parking'] ? 1 : 0
+    };
+    return axios.post(`/api/rooms/getrooms`, tempObj);
+}
+
+export function bookRoom(dispatch, data, callback) {
+    axios.post(`/api/reservation/bookrooms`, data)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                callback(null, true);
+                checkSession(dispatch);
+                dispatch(setToast({
+                    type: 'success',
+                    message: 'Property booked successfully!'
+                }));
+            }
+            callback(true);
+        });
+}
+
+export async function getHotelBookings(id) {
+    const results = await axios.get(`/api/admin/getbookings?hotel_id=${id}`);
+    // console.log(results.data/);
+    return results.data.data;
+}
+
+export async function getPriceChecked(data) {
+    const results = await axios.post(`/api/reservation/checkmodificationavailability`, data);
+    // console.log(results.data/);
+    return results.data.data;
+}
+
+export async function changeBooking(dispatch, data) {
+    const { hotel_id } = data;
+    delete data.hotel_id;
+    const results = await axios.post(`/api/reservation/modifybooking`, data);
+    // console.log(results.data/);
+    const responseData = results.data;
+    if (responseData.success) {
+        dispatch(setToast({
+            type: 'success',
+            message: 'Booking modified successfully!'
+        }));
+        getBookings(dispatch);
+    }
+    return responseData;
 }
