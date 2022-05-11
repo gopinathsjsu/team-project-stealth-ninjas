@@ -141,7 +141,7 @@ router.get('/session', checkAuth, (req, res) => {
     const { user } = req;
     console.log('req.session ->> ', req.session);
     res.json({ success: true, isAuthenticated: true, user: { 
-      email: user.cust_email, name: user.name, username: user.cust_email, 
+      email: user.cust_email, name: user.name, username: user.cust_name, 
       phone: user.cust_phone, user_role: user.user_role,
       reward_points: user.reward_points,
       customer_type: user.customer_type
