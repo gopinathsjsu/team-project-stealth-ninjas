@@ -17,17 +17,23 @@ export default function PropertyCard(property) {
           <Card.Body>
             <Row>
             <Col xs={2}>
-                <Image src={property.image_url} width="150" />
+                <Image src={property.image} width="150" />
             </Col>
             <Col xs={10}>
-                <Card.Title className="property_title" onClick={(e) => processClicks(e, dispatch, 'openHotel', { id: property })}>{property.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted property_location">{property.location}</Card.Subtitle>
+                <Card.Title className="property_title_clickable" onClick={(e) => processClicks(e, dispatch, 'openHotel', { id: property })}>{property.hotel_name} <span style={{position: 'absolute', right: '15px', color: '#000000'}}>${property.hotelbaseprice}</span></Card.Title>
+                <Card.Subtitle className="mb-2 text-muted property_location">{property.hotel_addr}, {property.city}</Card.Subtitle>
                 <Card.Text>
                   {property.description}
                 </Card.Text>
                 <Row style={{textAlign: 'right'}}>
                     <Col>
-                        <Button variant="primary">Reserve</Button>
+                        {
+                            property && property.type === 'admin' ? 
+                                <>
+                                <Button variant="primary" onClick={(e) => processClicks(e, dispatch, 'editHotel', { id: property.id, data: property })}>Edit</Button>
+                                </> : 
+                                <Button variant="primary" onClick={(e) => processClicks(e, dispatch, 'openHotel', { id: property })}>Reserve</Button>
+                        }
                         {/*
                             <Button variant="danger" className="nav-buttons">Favourite</Button>
                         */}

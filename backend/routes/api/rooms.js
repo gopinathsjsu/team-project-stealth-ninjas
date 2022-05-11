@@ -27,14 +27,14 @@ let connection = mysql.createConnection({
 
 // get the room available data in specified range data in a particular hotel
 router.post("/getrooms", checkAuth, (req, res) => {
-  //console.log(req.user);
+  // console.log(req.user);
   let summer_start_date = new Date("05/01/2023"); // either mm/dd/yyyy format or yyyy-mm-dd
   //console.log("the summer type of date is " , typeof(summer_start_date));
   //console.log("the summer type of date is " , summer_start_date);
   let summer_end_date = new Date("06/30/2023");
   let christmas_start_date = new Date("12/20/2022");
   let christmas_end_date = new Date("01/10/2023");
-  let customer_type = req.user[0].customer_type;
+  let customer_type = req.user.customer_type;
   let customer_loyalty_discount = 0;
   let holidays_count = 0;
   if (customer_type == "gold") {
@@ -71,7 +71,6 @@ router.post("/getrooms", checkAuth, (req, res) => {
     in (select room_id from reservation where start_date between ? and ? or end_date between ? and ?) group by roomtypename`,
             [hotel_id, start_date, end_date, start_date, end_date],
             function (error, results) {
-              console.log(results);
               //console.log(typeof(start_date))
               //console.log("actua",start_date)
               //console.log("moment",moment(start_date).format("")
@@ -92,7 +91,7 @@ router.post("/getrooms", checkAuth, (req, res) => {
                 "res_end_date_date_string",
                 res_end_date.toDateString()
               );
-              if (results.length !== 0) {
+              if (results && results.length !== 0) {
                 let diff = Math.abs(res_start_date - res_end_date); // in milliseconds
                 let ms_per_day = 1000 * 60 * 60 * 24;
                 let days = diff / ms_per_day + 1; // convert to days and add 1 for inclusive date range
@@ -107,7 +106,6 @@ router.post("/getrooms", checkAuth, (req, res) => {
                     res_end_date >= christmas_start_date &&
                     res_end_date <= christmas_start_date)
                 ) {
-                  console.log("discount", customer_loyalty_discount);
                   //console.log("in summer season if codition")
                   for (let i = 0; i < results.length; i++) {
                     results[i].roomdiscountedprice = Math.trunc(
@@ -119,8 +117,13 @@ router.post("/getrooms", checkAuth, (req, res) => {
                       days * results[i].roombaseprice
                     );
                   }
-
-                  res.json({ results, hotel_results });
+                  res.json({
+                    success: true,
+                    data: {
+                      ...hotel_results[0],
+                      rooms: results
+                    }
+                  });
                 } else {
                   let mod = days % 7;
                   let full_weeks = (days - mod) / 7;
@@ -169,7 +172,7 @@ router.post("/getrooms", checkAuth, (req, res) => {
                   console.log("weekend count", holidays_count);
 
                   let holidays = [
-                    new Date("05/25/2022"),
+                    new Date("05/18/2022"),
                     new Date("05/17/2022"),
                     new Date("04/02/2022"),
                   ];
@@ -222,7 +225,13 @@ router.post("/getrooms", checkAuth, (req, res) => {
                     );
                   }
                   //res.send(JSON.stringify(results));
-                  res.json({ results, hotel_results });
+                  res.json({
+                    success: true,
+                    data: {
+                      ...hotel_results[0],
+                      rooms: results
+                    }
+                  });
                 }
               } else {
                 res.send("failure");
@@ -279,9 +288,15 @@ router.post("/getrooms", checkAuth, (req, res) => {
             function (error, results) {
               if (error) {
                 //res.send(JSON.stringify(results));
-                res.send(error);
+                res.json({success: false, message: error.message});
               } else {
-                res.json({ results, hotel_results });
+                res.json({
+                  success: true,
+                  data: {
+                    ...hotel_results[0],
+                    rooms: results
+                  }
+                });
               }
             }
           );
@@ -292,6 +307,23 @@ router.post("/getrooms", checkAuth, (req, res) => {
       res.send("server error");
     }
   }
+});
+
+router.get('/room_types', checkAuth, (req, res) => {
+    try {
+        connection.query(`select * from room_type`, (err, results) => {
+            res.json({
+                success: true,
+                data: results
+            });
+        });
+
+    } catch (err) {
+        res.json({
+            success: false,
+            data: err.message
+        });
+    }
 });
 
 module.exports = router;

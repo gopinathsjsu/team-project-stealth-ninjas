@@ -42,7 +42,7 @@ export function handleLoginResponse(response) {
       return loginSuccess(data);
    } else {
       return loginFailure({
-         message: data.message
+         message: data.message ? data.message : 'Something went wrong in your login. Please login again'
       });
    }
 }

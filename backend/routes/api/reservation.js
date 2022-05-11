@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const session = require("express-session");
-let mysql = require("mysql");
+const mysql = require("mysql");
+const util = require("util");
+const {pluck, uniq} = require("underscore");
 
-let cors = require("cors");
+const cors = require("cors");
 const { check, validationResult } = require("express-validator");
 
 router.use(cors());
@@ -26,7 +28,7 @@ let connection = mysql.createConnection({
 // insert the records into reservation table once user hits the book button
 router.post("/bookrooms", checkAuth, (req, res) => {
   console.log(req.user);
-  let cust_email = req.user[0].cust_email;
+  let cust_email = req.user.cust_email;
   console.log("email", cust_email);
   console.log(req.body);
   let {
@@ -45,7 +47,7 @@ router.post("/bookrooms", checkAuth, (req, res) => {
       [hotel_id, start_date, end_date, start_date, end_date, roomtypename],
       function (error, results) {
         console.log(results);
-        if (results.length !== 0) {
+        if (results && results.length !== 0) {
           let room_id = results[0].room_id;
           console.log(room_id, "room id");
           connection.query(
@@ -63,6 +65,7 @@ router.post("/bookrooms", checkAuth, (req, res) => {
             ],
             function (error1, results1) {
               if (error1) {
+                console.log(error1);
                 res.send("failure");
               } else {
                 let rewardpoints = Math.trunc(0.01 * amount);
@@ -118,9 +121,9 @@ router.post("/bookrooms", checkAuth, (req, res) => {
               }
             }
           );
-          res.send("success");
+          res.json({success: true});
         } else {
-          res.send("hw server error");
+          res.send({success: false, message: "hw server error"});
         }
       }
     );
@@ -139,19 +142,25 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
   }
   console.log(req.user);
 
-  let cust_email = req.user[0].cust_email;
+  const cust_email = req.user.cust_email;
+  const dbQuery = util.promisify(connection.query).bind(connection);
   try {
-    connection.query(
-      `select * from reservation where cust_email=? order by reservation_id DESC`,
-      [cust_email],
-      function (error, results) {
-        if (results.length !== 0) {
-          res.status(200).json({ success: true, results });
-        } else {
-          res.send("failure");
-        }
-      }
-    );
+    const results = await dbQuery(`select * from reservation where cust_email=? order by reservation_id DESC`, [cust_email]);
+    const rawHotelIDs = pluck(results, 'hotel_id');
+    const hotelIDs = uniq(rawHotelIDs);
+    const hotelDetails = await dbQuery(`select * from hotel where hotel_id IN (?)`, [hotelIDs]);
+    const hotelsMap = {};
+    hotelDetails.map(hotel => {
+      hotelsMap[hotel.hotel_id] = hotel;
+    });
+    results.map(result => {
+      result.hotel = hotelsMap[result.hotel_id];
+    })
+    if (results && results.length !== 0) {
+      res.json({ success: true, data: results, hotelDetails });
+    } else {
+      res.json({ success: true, message: "failure"});
+    }
   } catch (err) {
     console.error(err.message);
     res.send("server error");
@@ -167,7 +176,7 @@ router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
   let summer_end_date = new Date("05/31/2023");
   let christmas_start_date = new Date("12/20/2022");
   let christmas_end_date = new Date("01/10/2023");
-  let customer_type = req.user[0].customer_type;
+  let customer_type = req.user.customer_type;
   let customer_loyalty_discount = 1;
   if (customer_type == "gold") {
     customer_loyalty_discount = 0.8;
@@ -195,7 +204,7 @@ router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
       [hotel_id, start_date, end_date, start_date, end_date, roomtypename],
       function (error, results) {
         console.log(results);
-        if (results.length !== 0) {
+        if (results && results.length !== 0) {
           let room_id = results[0].room_id;
           let roombaseprice = results[0].roombaseprice;
           let diff = Math.abs(res_start_date - res_end_date); // in milliseconds
@@ -302,7 +311,12 @@ router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
             );
             console.log(roombaseprice);
 
-            res.json({ room_id, roombaseprice });
+            res.json({
+              success: true, 
+              data: {
+                room_id, roombaseprice
+              } 
+            });
           }
         } else {
           res.send("rooms are not available for the selected dates");
@@ -347,6 +361,7 @@ router.post("/modifybooking", async (req, res) => {
   }
 });
 
+  
 router.post("/cancelbooking", async (req, res) => {
   console.log(req.body);
   const { reservation_id } = req.body;
@@ -370,4 +385,5 @@ router.post("/cancelbooking", async (req, res) => {
     res.send("server error");
   }
 });
+
 module.exports = router;

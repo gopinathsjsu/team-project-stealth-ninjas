@@ -118,7 +118,7 @@ router.post(
         `SELECT * FROM customer WHERE cust_email=?`,
         [cust_email],
         function (error, results) {
-          if (results.length !== 0) {
+          if (results && results.length !== 0) {
             console.log(results[0].cust_password);
             bcrypt.compare(
               cust_password,
@@ -129,13 +129,12 @@ router.post(
                 } else if (!isMatch) {
                   res.status(401).send("failure");
                 } else {
-                  console.log("in else", results[0].cust_email);
                   const payload = { cust_email: results[0].cust_email };
                   const token = jwt.sign(payload, secret, {
                     expiresIn: 10080000,
                   });
                   res.cookie("nc_token", token, { httpOnly: true });
-                  res.json({ success: true, token, results });
+                  res.json({ success: true, token, user: results[0] });
                 }
               }
             );
@@ -151,4 +150,3 @@ router.post(
 );
 
 module.exports = router;
-

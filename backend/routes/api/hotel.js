@@ -35,7 +35,7 @@ router.get("/gethotels", [], async (req, res) => {
             (select room_id from reservation where start_date between ? and ? or end_date between ? and ?))`,
       [city, start_date, end_date, start_date, end_date],
       function (error, results) {
-        if (results.length !== 0) {
+        if (results && results.length !== 0) {
           res.status(200).json({ success: true, data: results });
         } else {
           res.send("no hotels found");

@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const session = require("express-session");
 var mysql = require("mysql");
+var util = require("util");
 
 var cors = require("cors");
 const { check, validationResult } = require("express-validator");
+const { createRoom } = require('./logics');
 
 router.use(cors());
 const User = require("../../models/User");
@@ -38,6 +40,7 @@ router.post("/addhotel", [], async (req, res) => {
     description,
     hotelbaseprice,
     image,
+    rooms
   } = req.body;
   try {
     connection.query(
@@ -52,13 +55,32 @@ router.post("/addhotel", [], async (req, res) => {
         hotelbaseprice,
         image,
       ],
-      function (error, results) {
+      async (error, results) => {
         if (error) {
           //res.send(error.code);
           res.status(400).json("failure");
         } else {
+          // Add rooms now
+          const {insertId: hotel_id} = results;
+          const creationReqs = [];
+          for (let i=0; i < rooms.length; i++) {
+            const roomtypename = rooms[i].roomtypename;
+            const numberofrooms = rooms[i].count;
+            const createRoomObj = {
+              body: {
+                hotel_id,
+                roomtypename,
+                numberofrooms
+              }
+            };
+            const createRoomFn = util.promisify(createRoom);
+            creationReqs.push(createRoomFn(createRoomObj));
+          }
+          const roomReqsResults = await Promise.all(creationReqs);
+          console.log('creationRes => ', roomReqsResults);
           res.json({
             success: true,
+            roomReqsResults
           });
         }
       }
@@ -66,6 +88,60 @@ router.post("/addhotel", [], async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.send("database error");
+  }
+});
+
+// listing all the hotels for admin and he can filter based on the city name if required.
+router.get("/getallhotels", [], async (req, res) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  const city = req.query.city;
+  try {
+    let temp = `'%${city}%'`;
+    connection.query(
+      `SELECT * FROM hotel WHERE city like ${temp}`, {raw: true},
+      function (error, results) {
+        if (results && results.length !== 0) {
+          res.json({ success: true, data: results });
+        } else {
+          res.send("failure");
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
+  }
+});
+
+// admin viewing the bookings in a particular hotel
+router.get("/getbookings", [], async (req, res) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    //res.send(errors.code);
+    return res.status(500).json({ errors: errors.array() });
+  }
+  const hotel_id = req.query.hotel_id;
+  try {
+    connection.query(
+      `SELECT * FROM reservation WHERE hotel_id=?`,
+      [hotel_id],
+      function (error, results) {
+        if (results && results.length !== 0) {
+          res.status(200).json({ success: true, data: results });
+        } else {
+          res.send("failure");
+        }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.send("server error");
   }
 });
 
@@ -118,110 +194,6 @@ router.put("/edithotel", [], async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.send("database error");
-  }
-});
-
-// admin adding the room
-router.post("/addroom", [], async (req, res) => {
-  console.log(req.body);
-  const errors = validationResult(req);
-  console.log(errors);
-  if (!errors.isEmpty()) {
-    //res.send(errors.code);
-    return res.status(500).json({ errors: errors.array() });
-  }
-  const { roomtypename, hotel_id, numberofrooms } = req.body;
-  //const {hotel_id} = req.params;
-  try {
-    connection.query(
-      `SELECT hotelbaseprice from hotel where hotel_id= ?`,
-      hotel_id,
-      function (error, results) {
-        const { hotelbaseprice } = results[0];
-        connection.query(
-          `SELECT maxguests,description,cost from room_type where roomtypename= ?`,
-          roomtypename,
-          function (error, results1) {
-            const { maxguests, description, cost } = results1[0];
-            for (let i = 0; i < numberofrooms; i++) {
-              connection.query(
-                `INSERT INTO room(roomtypename,hotel_id,maxguests,description,roombaseprice) values(?,?,?,?,?)`,
-                [
-                  roomtypename,
-                  hotel_id,
-                  maxguests,
-                  description,
-                  cost * hotelbaseprice,
-                ],
-                function (error, results2) {
-                  if (error) throw error;
-                  console.log("values added");
-                }
-              );
-            }
-          }
-        );
-
-        res.json({ success: true });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.send("database error");
-  }
-});
-
-// listing all the hotels for admin and he can filter based on the city name if required.
-router.get("/getallhotels", [], async (req, res) => {
-  const errors = validationResult(req);
-  console.log(errors);
-  if (!errors.isEmpty()) {
-    //res.send(errors.code);
-    return res.status(500).json({ errors: errors.array() });
-  }
-  const city = req.query.city;
-  try {
-    let temp = `'%${city}%'`;
-    connection.query(
-      `SELECT * FROM hotel WHERE city like ${temp}`,
-      function (error, results) {
-        if (results.length !== 0) {
-          res.json({ success: true, data: results });
-        } else {
-          res.send("failure");
-        }
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.send("server error");
-  }
-});
-
-// admin viewing the bookings in a particular hotel
-router.get("/getbookings", [], async (req, res) => {
-  const errors = validationResult(req);
-  console.log(errors);
-  if (!errors.isEmpty()) {
-    //res.send(errors.code);
-    return res.status(500).json({ errors: errors.array() });
-  }
-  const hotel_id = req.query.hotel_id;
-  try {
-    connection.query(
-      `SELECT * FROM reservation WHERE hotel_id=?`,
-      [hotel_id],
-      function (error, results) {
-        if (results.length !== 0) {
-          res.status(200).json({ success: true, results });
-        } else {
-          res.send("failure");
-        }
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.send("server error");
   }
 });
 

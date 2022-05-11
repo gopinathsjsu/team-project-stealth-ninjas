@@ -18,7 +18,7 @@ function fetchHotelDetailsFailure(data) {
    }
 }
 
-export function hotelsLoading() {
+export function hotelDetailsLoading() {
    return {
       type: LOADING_HOTEL_DETAILS
    }

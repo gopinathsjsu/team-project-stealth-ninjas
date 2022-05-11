@@ -33,15 +33,17 @@ export function Login() {
     //submit Login handler to send a request to the node backend
     const submitLogin = () => {
         const data = {
-            username,
-            password
+            cust_email: username,
+            cust_password: password
         };
         //set the with credentials to true
         // axios.defaults.withCredentials = true;
         //make a post request with the user data
-        axios.post('/signin',data)
+        axios.post('/api/users/login',data)
             .then(response => {
                 dispatch(handleLoginResponse(response));
+            }).catch(error => {
+                dispatch(handleLoginResponse(error.response));
             });
     }
 
