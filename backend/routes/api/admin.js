@@ -149,4 +149,5 @@ router.get("/getallhotels", [], async (req, res) => {
 
 
 
+
 module.exports = router;
