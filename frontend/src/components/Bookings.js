@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 // import DatePicker from "react-datepicker";
 import BookingCard from "./BookingCard";
 import ModifyBooking from "./ModifyBooking";
-import { getBookings } from "../utils";
+import { getBookings, cancelBooking } from "../utils";
 import { useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
@@ -35,6 +35,10 @@ export function Bookings() {
         }
     }
 
+    const removeBooking = (dispatch, id) => {
+        cancelBooking(dispatch, id);
+    }
+
     const handleEditBookingClose = (type) => {
         setEditData({});
         setModifyFlag(false);
@@ -51,7 +55,7 @@ export function Bookings() {
             {!loading && bookingsData ?
                 <Row>
                 {
-                    bookingsData.map(booking => <BookingCard key={booking.reservation_id} {...booking} fn={{editBooking}} />)
+                    bookingsData.map(booking => <BookingCard key={booking.reservation_id} {...booking} fn={{editBooking, removeBooking}} />)
                 }
                 </Row> : ''
             }

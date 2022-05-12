@@ -32,7 +32,7 @@ export default function BookingCard(property) {
                 <Row style={{textAlign: 'right'}}>
                     <Col style={{padding: '0', marginTop: '-28px'}}>
                         <Button variant="warning" className="nav-buttons-bkng" onClick={(e) => processClicks(e, 'editBooking', {id: property.reservation_id})}>Modify</Button>
-                        <Button variant="danger" className="nav-buttons-bkng">Cancel</Button>
+                        <Button variant="danger" className="nav-buttons-bkng"  onClick={(e) => processClicks(e, 'removeBooking', {id: property.reservation_id})}>Cancel</Button>
                     </Col>
                 </Row>
             </Col>

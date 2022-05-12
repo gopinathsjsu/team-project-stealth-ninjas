@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Form, Button, Image, Table, Spinner } from 'react-bootstrap';
 import { getHotelDetails, filterHotelsWithAmenities, getShortDate, bookRoom } from '../utils';
 import { useSelector, useDispatch } from 'react-redux';
+import Loader from './Loader';
 import { FaUser, FaDumbbell, FaSwimmer, FaUtensils, FaParking } from 'react-icons/fa';
 import {pluck} from 'underscore';
 // import { useSelector } from 'react-redux';
@@ -25,6 +26,8 @@ export function HotelDetails() {
     const [filterForm, setFilterForm] = useState(resetFilterState);
     const hotelDetails = useSelector(state => state.hoteldetails.data);
     const loading = useSelector(state => state.hoteldetails.loading);
+    const [loadingFilters, setLoadingFilters] = useState(false);
+    const [booking, setBooking] = useState(false);
     const { hotelID } = urlParams;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
@@ -36,19 +39,25 @@ export function HotelDetails() {
         getHotelDetails(dispatch, {hotelID, startDate, endDate})
     }, []);
 
+    useEffect(() => {
+        console.log('filterForm changed');
+        getFilterValues();
+    }, [filterForm]);
+
     const getFilterValues = () => {
         console.log('filter hit');
         async function fetchFilterData() {
-            // Make a call here
             const filterData = await filterHotelsWithAmenities({...filterForm, hotel_id: hotelID, start_date: startDate, end_date: endDate});
             const {data} = filterData.data;
             console.log(data.rooms);
             if (data.rooms && Array.isArray(data.rooms)) {
+                setLoadingFilters(false);
                 const filters = pluck(data.rooms, 'roomtypename');
-                // console.log(filters);
                 setFilterRooms(filters);
             }
         }
+        // Loader on
+        setLoadingFilters(true);
         fetchFilterData();
     };
 
@@ -57,7 +66,7 @@ export function HotelDetails() {
         setFilterForm({
             ...filterForm,
             [id]: checked
-        }, getFilterValues());
+        });
     }
 
     const calculateDynamicPrice = (e, rd) => {
@@ -94,9 +103,10 @@ export function HotelDetails() {
             amount,
             numberofguests
         };
-        // console.log('bookHotelRoom -> ', bookingObj);
+        setBooking(true);
         bookRoom(dispatch, bookingObj, (err, successFlag) => {
             if (successFlag) {
+                setBooking(false);
                 navigate('/bookings');
             }
         });
@@ -112,12 +122,10 @@ export function HotelDetails() {
 
     return (
         <div className="container" style={{marginTop: '10px'}}>
-            {loading ? 
-                <Spinner animation="border" size="lg" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner> : ''
+            {(loading || booking) ? 
+                <Loader /> : ''
             }
-            {!loading && hotelDetails ? 
+            {(!loading && !booking) && hotelDetails ? 
                 <Row>
                     <Row>
                         <Col xs={4}>
@@ -166,7 +174,7 @@ export function HotelDetails() {
                             onChange={onSwitchChange}
                           />
                     </Row>
-                    <Row className="room_details">
+                    {loadingFilters ? <Loader /> : <Row className="room_details">
                         <Table responsive>
                           <thead>
                             <tr>
@@ -209,7 +217,7 @@ export function HotelDetails() {
                             }
                           </tbody>
                         </Table>
-                    </Row>
+                    </Row>}
                 </Row> : ''
             }
         </div>

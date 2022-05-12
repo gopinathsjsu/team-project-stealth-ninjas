@@ -8,9 +8,9 @@ import { useNavigate } from 'react-router-dom';
 export default function Register() {
 
 	const [regForm, setRegForm] = useState({
-		email: '',
-		password: '',
-		username: ''
+		cust_email: '',
+		cust_password: '',
+		cust_name: ''
 	});
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -36,9 +36,9 @@ export default function Register() {
 
 	const reset = () => {
 		setRegForm({
-			email: '',
-			password: '',
-			username: ''
+			cust_email: '',
+			cust_password: '',
+			cust_name: ''
 		});
 	}
 
@@ -46,33 +46,33 @@ export default function Register() {
 		<div className="container pull-down fill-page">
 			<h5>Registration Form</h5>
 			<Form>
-				<Form.Group className="mb-3" controlId="username">
-					<Form.Label>Username</Form.Label>
+				<Form.Group className="mb-3" controlId="cust_name">
+					<Form.Label>Name</Form.Label>
 					<Form.Control
 					    type="text"
-					    value={regForm.username}
+					    value={regForm.cust_name}
 					    onChange={onInputChange}
-					    aria-describedby="username"
+					    aria-describedby="cust_name"
 					/>
 				</Form.Group>
 
-				<Form.Group className="mb-3" controlId="email">
-					<Form.Label>email</Form.Label>
+				<Form.Group className="mb-3" controlId="cust_email">
+					<Form.Label>Email</Form.Label>
 					<Form.Control
 					    type="text"
-					    value={regForm.email}
+					    value={regForm.cust_email}
 					    onChange={onInputChange}
-					    aria-describedby="email"
+					    aria-describedby="cust_email"
 					/>
 				</Form.Group>
 
-				<Form.Group className="mb-3" controlId="password">
+				<Form.Group className="mb-3" controlId="cust_password">
 					<Form.Label>Password</Form.Label>
 					<Form.Control
 					    type="password"
-					    value={regForm.password}
+					    value={regForm.cust_password}
 					    onChange={onInputChange}
-					    aria-describedby="password"
+					    aria-describedby="cust_password"
 					/>
 				</Form.Group>
 			</Form>

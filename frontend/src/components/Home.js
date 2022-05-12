@@ -41,7 +41,7 @@ export function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        getHotels(dispatch);
+        submit();
         setCities(City.getCitiesOfState('US', 'CA'));
     }, [])
 
@@ -54,13 +54,11 @@ export function Home() {
         console.log(searchForm);
         const [lclcity] = value;
         const [stateValue] = state;
-        console.log('value -> ', state);
         const temp = {
             ...searchForm,
             place: lclcity.name
         };
         // place lowercase joining must be removed later
-        console.log(temp);
         getHotels(dispatch, temp);
     }
 
