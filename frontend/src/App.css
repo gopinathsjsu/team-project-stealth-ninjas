@@ -330,3 +330,11 @@ video {
 .room_filters {
   margin-top: 20px !important;
 }
+.navbar-brand-logo {
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 0px;
+  margin: 0px;
+  width: 90px;
+  height: 35px;
+}
