@@ -4,7 +4,7 @@ import { getHotelDetails, filterHotelsWithAmenities, getShortDate, bookRoom } fr
 import { useSelector, useDispatch } from 'react-redux';
 import Loader from './Loader';
 import { FaUser, FaDumbbell, FaSwimmer, FaUtensils, FaParking } from 'react-icons/fa';
-import {pluck} from 'underscore';
+import { pluck } from 'underscore';
 // import { useSelector } from 'react-redux';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -26,6 +26,7 @@ export function HotelDetails() {
     const [filterForm, setFilterForm] = useState(resetFilterState);
     const hotelDetails = useSelector(state => state.hoteldetails.data);
     const loading = useSelector(state => state.hoteldetails.loading);
+    const userDetails = useSelector(state => state.app.user);
     const [loadingFilters, setLoadingFilters] = useState(false);
     const [booking, setBooking] = useState(false);
     const { hotelID } = urlParams;
@@ -37,6 +38,10 @@ export function HotelDetails() {
     const [filterRooms, setFilterRooms] = useState([]);
 
     useEffect(() => {
+        console.log(userDetails);
+        if (!userDetails || !userDetails.isLoggedIn) {
+            navigate('/login');
+        }
         getHotelDetails(dispatch, {hotelID, startDate, endDate})
     }, []);
 

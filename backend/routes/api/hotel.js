@@ -36,9 +36,9 @@ router.get("/gethotels", [], async (req, res) => {
       [city, start_date, end_date, start_date, end_date],
       function (error, results) {
         if (results && results.length !== 0) {
-          res.status(200).json({ success: true, data: results });
+          res.json({ success: true, data: results });
         } else {
-          res.send("no hotels found");
+          res.json({ success: true, data: [] });
         }
       }
     );

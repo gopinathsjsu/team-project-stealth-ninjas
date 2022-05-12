@@ -73,7 +73,9 @@ export function Home() {
         setState(selected);
         console.log(selected);
         const [state] = selected;
-        console.log('state -> ', state);
+        if (!state || !state.countryCode || !state.isoCode) {
+            return;
+        }
         setCities(City.getCitiesOfState(state.countryCode, state.isoCode));
     }
     // console.log(City.getAllCities())

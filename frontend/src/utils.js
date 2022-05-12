@@ -21,13 +21,22 @@ export function register(dispatch, data, callback) {
         .then(response => {
             const {data} = response;
             if (data.success) {
-                console.log('Registration success');
+                dispatch(setToast({
+                    type: 'Success',
+                    message: data.message
+                }));
                 return callback(null, true);
                 // navigate('login');
             } else {
                 console.log('Registration failure');
                 return callback(true);
             }
+        }).catch(error => {
+            const {data} = error.response;
+            dispatch(setToast({
+                type: 'Error',
+                message: data.message
+            }));
         });
 }
 
