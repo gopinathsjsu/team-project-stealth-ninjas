@@ -59,12 +59,42 @@
   margin-left: 10px;
 }
 
-.login-form {
+
+.login-form, .login-form-shadow {
   left: 65%;
   top: 35%;
   margin-left: -25%;
   position: absolute;
+  padding: 20px;
   /*margin-top: 25%;*/
+}
+
+.login-form-shadow {
+  background-color: white;
+  height: 280px;
+  padding: 20px;
+  border-radius: 5px;
+  width: 348px;
+  opacity: 0.8;
+}
+
+.register-form, .register-form-shadow {
+  left: 65%;
+  top: 35%;
+  margin-left: -25%;
+  position: absolute;
+  padding: 20px;
+  width: 350px;
+  /*margin-top: 25%;*/
+}
+
+.register-form-shadow {
+  background-color: white;
+  height: 370px;
+  padding: 20px;
+  border-radius: 5px;
+  width: 348px;
+  opacity: 0.8;
 }
 
 .login-panel > .btn {
@@ -275,4 +305,28 @@
 .usr_rewards {
   font-size: 13px;
   position: relative;
+}
+video {
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+.bgnew-light {
+  background-color: #f7f7f7 !important;
+  -webkit-transition: all 400ms ease-in-out;
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 6%);
+}
+
+.discounted-price {
+  text-decoration-line: line-through;
+  text-decoration-style: solid;
+  color: #808080;
+}
+
+.pricing_display > p {
+  margin: 0;
+}
+
+.room_filters {
+  margin-top: 20px !important;
 }

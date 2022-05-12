@@ -43,7 +43,14 @@ export default function Register() {
 	}
 
 	return (
-		<div className="container pull-down fill-page">
+		<>
+		<video autoPlay loop muted>
+          <source src="bg_video.mp4" type="video/mp4" />
+        </video>
+		<div className="container">
+			<div className="register-form-shadow">
+			</div>
+			<div className="register-form">
 			<h5>Registration Form</h5>
 			<Form>
 				<Form.Group className="mb-3" controlId="cust_name">
@@ -81,7 +88,8 @@ export default function Register() {
 				<Button variant="primary" onClick={() => submitRegister()}>Submit</Button>
 				<Button variant="secondary" onClick={() => reset()}>Reset</Button>
 			</div>
-
+			</div>
 		</div>
+		</>
 	)
 }
