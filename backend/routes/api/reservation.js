@@ -159,16 +159,18 @@ router.get("/getmybookings", checkAuth, async (req, res) => {
     const results = await dbQuery(`select * from reservation where cust_email=? order by reservation_id DESC`, [cust_email]);
     const rawHotelIDs = pluck(results, 'hotel_id');
     const hotelIDs = uniq(rawHotelIDs);
-    const hotelDetails = await dbQuery(`select * from hotel where hotel_id IN (?)`, [hotelIDs]);
     const hotelsMap = {};
-    hotelDetails.map(hotel => {
-      hotelsMap[hotel.hotel_id] = hotel;
-    });
+    if (hotelIDs && hotelIDs.length) {
+      const hotelDetails = await dbQuery(`select * from hotel where hotel_id IN (?)`, [hotelIDs]);
+      hotelDetails.map(hotel => {
+        hotelsMap[hotel.hotel_id] = hotel;
+      });
+    }
     results.map(result => {
       result.hotel = hotelsMap[result.hotel_id];
     })
     if (results && results.length !== 0) {
-      res.json({ success: true, data: results, hotelDetails });
+      res.json({ success: true, data: results });
     } else {
       res.json({ success: true, message: "failure"});
     }
@@ -330,7 +332,7 @@ router.post("/checkmodificationavailability", checkAuth, async (req, res) => {
             });
           }
         } else {
-          res.send("rooms are not available for the selected dates");
+          res.json({success: false, message: "rooms are not available for the selected dates"});
         }
       }
     );

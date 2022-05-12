@@ -169,7 +169,7 @@ export function HotelDetails() {
             {(!loading && !booking) && hotelDetails ? 
                 <Row>
                     <Row>
-                        <Col xs={4}>
+                        <Col xs={4} style={{overflow: 'hidden'}}>
                             <Image src={hotelDetails.image} width="400" />
                         </Col>
                         <Col xs={8}>
@@ -192,17 +192,17 @@ export function HotelDetails() {
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
-                            id="access_to_swimming_pool"
-                            label={<><FaSwimmer className="filter-icons" /> <span>Swimming Pool</span></>}
-                            checked={filterForm.access_to_swimming_pool}
+                            id="access_to_fitness_room"
+                            label={<><FaDumbbell className="filter-icons" /> <span>Fitness Room</span></>}
+                            checked={filterForm.access_to_fitness_room}
                             onChange={onSwitchChange}
                           />
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
-                            id="access_to_fitness_room"
-                            label={<><FaDumbbell className="filter-icons" /> <span>Fitness Room</span></>}
-                            checked={filterForm.access_to_fitness_room}
+                            id="access_to_swimming_pool"
+                            label={<><FaSwimmer className="filter-icons" /> <span>Swimming Pool</span></>}
+                            checked={filterForm.access_to_swimming_pool}
                             onChange={onSwitchChange}
                           />
                         <Form.Check 

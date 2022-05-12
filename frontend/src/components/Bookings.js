@@ -59,6 +59,9 @@ export function Bookings() {
                 }
                 </Row> : ''
             }
+            {!loading && (!bookingsData || !bookingsData.length) ?
+                <p>No bookings found.</p> : ''
+            }
             <ModifyBooking data={editData} showFlag={modifyFlag} fn={{handleEditBookingClose}}/>
         </div>
     )
