@@ -43,7 +43,7 @@ export function Main() {
 
     return(
         <>
-            {location.pathname !== '/login' && <Navbar />}
+            {(location.pathname !== '/register' && location.pathname !== '/login') ? <Navbar /> : ''}
             {
                 alert ? 
                 <div className="container pull-down">

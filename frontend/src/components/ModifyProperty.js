@@ -150,6 +150,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
     }
 
     const getRoomTypeName = (id) => {
+        console.log('getRoomTypeName id -> ', id);
         const roomMap = {};
         roomTypes.map(rt => {
             roomMap[rt.roomtypeid] = rt.roomtypename
@@ -290,7 +291,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
                                             {
                                                 rooms.map((r, i) => <tr>
                                                     <td>{i + 1}</td>
-                                                    <td>{getRoomTypeName(r.type)}</td>
+                                                    <td>{r.roomtypename}</td>
                                                     <td>{r.count}</td>
                                                     </tr>
                                                 )
