@@ -241,7 +241,7 @@ export function HotelDetails() {
                                             }
                                         </td>
                                         <td className="pricing_display">
-                                            {rd.roomdiscountedprice && <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p>}
+                                            {rd.roomdiscountedprice ? <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p> : ''}
                                             <p className={getDiscountedStyling(rd.roomdiscountedprice)}>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</p>
                                         </td>
                                         <td>
