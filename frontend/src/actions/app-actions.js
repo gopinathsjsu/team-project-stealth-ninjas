@@ -41,9 +41,13 @@ export function handleLoginResponse(response) {
    if (data.success) {
       return loginSuccess(data);
    } else {
-      return loginFailure({
+      return setToast({
+         type: 'Error',
          message: data.message ? data.message : 'Something went wrong in your login. Please login again'
-      });
+      })
+      // return loginFailure({
+      //    message: data.message ? data.message : 'Something went wrong in your login. Please login again'
+      // });
    }
 }
 

@@ -50,9 +50,13 @@ function ModifyBooking({data, showFlag, fn}) {
         };
         if (!priceCheck) {
             const priceCheckResults = await getPriceChecked(priceCheckObj);
-            const {room_id, roombaseprice} = priceCheckResults;
+            const {room_id, roombaseprice, error} = priceCheckResults;
             setTmpRoomObj({room_id, roombaseprice});
             setPriceCheck(true);
+            if (error) {
+                setUserMessage(error);
+                return;
+            }
             if (roombaseprice === (bookingForm.amount)) {
                 // amount is same, continue to book
                 makeBooking();
@@ -80,7 +84,7 @@ function ModifyBooking({data, showFlag, fn}) {
         <div className="container">
             <Modal show={showFlag} onHide={handleCloseButton}>
                 <Modal.Header closeButton>
-                    <Modal.Title>{data.reservation_id ? `Modify booking - ${data.reservation_id}` : 'Modify booking'}</Modal.Title>
+                    <Modal.Title>Modify booking</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="booking_details">

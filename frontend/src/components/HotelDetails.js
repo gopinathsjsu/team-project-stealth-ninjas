@@ -4,7 +4,7 @@ import { getHotelDetails, filterHotelsWithAmenities, getShortDate, bookRoom } fr
 import { useSelector, useDispatch } from 'react-redux';
 import Loader from './Loader';
 import { FaUser, FaDumbbell, FaSwimmer, FaUtensils, FaParking } from 'react-icons/fa';
-import {pluck} from 'underscore';
+import { pluck } from 'underscore';
 // import { useSelector } from 'react-redux';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -26,6 +26,7 @@ export function HotelDetails() {
     const [filterForm, setFilterForm] = useState(resetFilterState);
     const hotelDetails = useSelector(state => state.hoteldetails.data);
     const loading = useSelector(state => state.hoteldetails.loading);
+    const userDetails = useSelector(state => state.app.user);
     const [loadingFilters, setLoadingFilters] = useState(false);
     const [booking, setBooking] = useState(false);
     const { hotelID } = urlParams;
@@ -37,6 +38,10 @@ export function HotelDetails() {
     const [filterRooms, setFilterRooms] = useState([]);
 
     useEffect(() => {
+        console.log(userDetails);
+        if (!userDetails || !userDetails.isLoggedIn) {
+            navigate('/login');
+        }
         getHotelDetails(dispatch, {hotelID, startDate, endDate})
     }, []);
 
@@ -164,7 +169,7 @@ export function HotelDetails() {
             {(!loading && !booking) && hotelDetails ? 
                 <Row>
                     <Row>
-                        <Col xs={4}>
+                        <Col xs={4} style={{overflow: 'hidden'}}>
                             <Image src={hotelDetails.image} width="400" />
                         </Col>
                         <Col xs={8}>
@@ -187,17 +192,17 @@ export function HotelDetails() {
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
-                            id="access_to_swimming_pool"
-                            label={<><FaSwimmer className="filter-icons" /> <span>Swimming Pool</span></>}
-                            checked={filterForm.access_to_swimming_pool}
+                            id="access_to_fitness_room"
+                            label={<><FaDumbbell className="filter-icons" /> <span>Fitness Room</span></>}
+                            checked={filterForm.access_to_fitness_room}
                             onChange={onSwitchChange}
                           />
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
-                            id="access_to_fitness_room"
-                            label={<><FaDumbbell className="filter-icons" /> <span>Fitness Room</span></>}
-                            checked={filterForm.access_to_fitness_room}
+                            id="access_to_swimming_pool"
+                            label={<><FaSwimmer className="filter-icons" /> <span>Swimming Pool</span></>}
+                            checked={filterForm.access_to_swimming_pool}
                             onChange={onSwitchChange}
                           />
                         <Form.Check 
@@ -236,7 +241,7 @@ export function HotelDetails() {
                                             }
                                         </td>
                                         <td className="pricing_display">
-                                            {rd.roomdiscountedprice && <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p>}
+                                            {rd.roomdiscountedprice ? <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p> : ''}
                                             <p className={getDiscountedStyling(rd.roomdiscountedprice)}>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</p>
                                         </td>
                                         <td>

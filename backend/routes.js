@@ -144,7 +144,8 @@ router.get('/session', checkAuth, (req, res) => {
       email: user.cust_email, name: user.name, username: user.cust_name, 
       phone: user.cust_phone, user_role: user.user_role,
       reward_points: user.reward_points,
-      customer_type: user.customer_type
+      customer_type: user.customer_type,
+      isLoggedIn: true
     } });
   } else {
     res.status(401).json({ message: "Not authorized", success: false });

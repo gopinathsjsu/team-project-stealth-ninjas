@@ -89,7 +89,7 @@ router.post(
             );
           } else {
             //console.log("User already existed!");
-            res.status(400).json({success: true, message: "user already exists"});
+            res.status(400).json({success: false, message: "user already exists"});
           }
         }
       );
@@ -134,7 +134,7 @@ router.post(
                     expiresIn: 10080000,
                   });
                   res.cookie("nc_token", token, { httpOnly: true });
-                  res.json({ success: true, token, user: results[0] });
+                  res.json({ success: true, token, user: results[0], isLoggedIn: true });
                 }
               }
             );

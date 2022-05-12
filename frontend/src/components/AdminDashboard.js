@@ -70,6 +70,9 @@ export function AdminDashboard() {
         setState(selected);
         console.log(selected);
         const [state] = selected;
+        if (!state || !state.countryCode || !state.isoCode) {
+            return;
+        }
         setCities(City.getCitiesOfState(state.countryCode, state.isoCode));
     }
 

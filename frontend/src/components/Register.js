@@ -25,10 +25,6 @@ export default function Register() {
 		console.log('regForm => ', regForm);
 		register(dispatch, regForm, (err, successFlag) => {
 			if (successFlag) {
-				dispatch(setAlert({
-					type: 'success',
-					message: 'Registration successful. Please login now'
-				}));
 				navigate('/login');
 			}
 		});
