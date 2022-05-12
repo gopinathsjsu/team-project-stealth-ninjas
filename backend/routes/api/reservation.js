@@ -117,6 +117,9 @@ router.post("/bookrooms", checkAuth, (req, res) => {
                             }
                           );
                         }
+                        if (reward_points <=50) {
+                          res.json({success: true});
+                        }
                       } else {
                         res.send("failure");
                       }
