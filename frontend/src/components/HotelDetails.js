@@ -32,6 +32,7 @@ export function HotelDetails() {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const [dynamicPricing, setDynamicPricing] = useState({});
+    const [dynamicDiscountedPricing, setDynamicDiscountedPricing] = useState({});
     const [guestTracker, setGuestTracker] = useState({});
     const [filterRooms, setFilterRooms] = useState([]);
 
@@ -90,6 +91,27 @@ export function HotelDetails() {
         setDynamicPricing(tmpPrices);
     }
 
+    const calculateDiscountedDynamicPrice = (e, rd) => {
+        const guest_count = parseInt(e.target.value);
+        const tmpPrices = {...dynamicPricing};
+        const config = {
+            1: 1,
+            2: 0.7,
+            3: 0.55,
+            4: 0.45
+        };
+        if (!rd.roomdiscountedprice || !guest_count || guest_count > 4) {
+            tmpPrices[rd.roomtypename] = rd.roomdiscountedprice;
+        }
+        tmpPrices[rd.roomtypename] = Math.trunc(parseInt(rd.roomdiscountedprice) * guest_count * config[guest_count]);
+        console.log(tmpPrices);
+        setGuestTracker({
+            ...guestTracker,
+            [rd.roomtypename]: guest_count
+        });
+        setDynamicDiscountedPricing(tmpPrices);
+    }
+
     const bookHotelRoom = (row) => {
         const roomtypename = row.roomtypename;
         const numberofguests = guestTracker[roomtypename];
@@ -120,6 +142,20 @@ export function HotelDetails() {
         return filterRooms.indexOf(roomtypename) !== -1 ? true : false;
     }
 
+    const getDiscountedStyling = price => {
+        if (!price) {
+            return;
+        }
+        if (price && price > 0) {
+            return 'discounted-price';
+        }
+    }
+
+    const calculatePrices = (e, rd) => {
+        calculateDynamicPrice(e, rd);
+        calculateDiscountedDynamicPrice(e, rd);
+    }
+
     return (
         <div className="container" style={{marginTop: '10px'}}>
             {(loading || booking) ? 
@@ -140,7 +176,6 @@ export function HotelDetails() {
                         </Col>
                     </Row>
                     <Row className="room_filters">
-                        <p>here it is</p>
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
@@ -200,9 +235,12 @@ export function HotelDetails() {
                                                 Array.from({ length: Number(rd.maxguests) }).map(() => <FaUser />)
                                             }
                                         </td>
-                                        <td>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</td>
+                                        <td className="pricing_display">
+                                            {rd.roomdiscountedprice && <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p>}
+                                            <p className={getDiscountedStyling(rd.roomdiscountedprice)}>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</p>
+                                        </td>
                                         <td>
-                                            <Form.Select aria-label="Guest count" onChange={e => calculateDynamicPrice(e, rd)}>
+                                            <Form.Select aria-label="Guest count" onChange={e => calculatePrices(e, rd)}>
                                               <option value="0">Guest count</option>
                                               {
                                                 Array.from({ length: Number(rd.maxguests) }).map((x, i) => <option value={i+1}>{i+1}</option>)
