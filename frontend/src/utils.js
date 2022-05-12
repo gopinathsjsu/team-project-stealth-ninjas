@@ -16,7 +16,8 @@ export function getShortDate(inputDate) {
 export function register(dispatch, data, callback) {
     // const navigate = useNavigate();
     // dispatch(profileLoading());
-    axios.post(`/signup`, data)
+    data.cust_phone = '3151355533';
+    axios.post(`/api/users/signup`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -130,9 +131,7 @@ export function addProperty(dispatch, params, callback) {
 }
 
 export function modifyProperty(dispatch, params, callback) {
-    const {hotel_id: id} = params;
-    delete params.id;
-    axios.put(`/api/property/${id}`, params)
+    axios.put(`/api/admin/edithotel`, params)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -141,7 +140,7 @@ export function modifyProperty(dispatch, params, callback) {
                     type: 'success',
                     message: 'Property modified successfully!'
                 }));
-                getAllHotels(dispatch, params.shop_id);
+                // getAllHotels(dispatch, params.hotel_id);
             }
             callback(true);
         });
@@ -203,6 +202,21 @@ export async function changeBooking(dispatch, data) {
         dispatch(setToast({
             type: 'success',
             message: 'Booking modified successfully!'
+        }));
+        getBookings(dispatch);
+    }
+    return responseData;
+}
+
+export async function cancelBooking(dispatch, reservationID) {
+    const data = { reservation_id: reservationID };
+    const results = await axios.post(`/api/reservation/cancelbooking`, data);
+    // console.log(results.data/);
+    const responseData = results.data;
+    if (responseData.success) {
+        dispatch(setToast({
+            type: 'success',
+            message: 'Booking cancelled successfully!'
         }));
         getBookings(dispatch);
     }

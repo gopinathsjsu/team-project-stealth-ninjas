@@ -67,7 +67,7 @@ function Navbar() {
     }
 
     return(
-        <nav className="navbar navbar-light bg-light justify-content-between">
+        <nav className="navbar navbar-light bgnew-light justify-content-between">
             <div className="container">
                 <div className="col-1">
                     <a className="navbar-brand" onClick={() => home()}>Ninja Couch {isAdmin ? <span style={{fontSize: '10px'}}>Admin</span> : ''}</a>

@@ -48,7 +48,13 @@ export function Login() {
     }
 
     return (
+        <>
+        <video autoPlay loop muted>
+          <source src="bg_video.mp4" type="video/mp4" />
+        </video> 
         <div className="container">
+            <div className="login-form-shadow">
+            </div>
             <div className="login-form">
                 <div className="main-div">
                     <div className="login-panel">
@@ -57,14 +63,15 @@ export function Login() {
                         <div className="form-group">
                             <input onChange = {usernameChangeHandler} type="text" className="form-control" name="username" value={username} placeholder="Username"/>
                         </div>
-                        <div className="form-group">
+                        <div className="form-group" style={{marginTop: '10px'}}>
                             <input onChange = {passwordChangeHandler} type="password" className="form-control" name="password" value={password} placeholder="Password"/>
                         </div>
-                        <button onClick = {() => submitLogin()} className="btn btn-primary">Login</button>                 
+                        <button onClick = {() => submitLogin()} style={{marginTop: '20px'}} className="btn btn-primary">Login</button>                 
                     </div>
                 </div>
             </div>
         </div>
+        </>
     )
 }
 export default Login;

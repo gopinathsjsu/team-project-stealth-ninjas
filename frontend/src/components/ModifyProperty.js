@@ -47,9 +47,10 @@ function ModifyProperty({data, showFlag, fn, mode}) {
             setPropertyForm(resetPropertyState);
             setRooms([]);
         }
-    }, [mode]);
+    }, [mode, data]);
 
     const reset = () => {
+        console.log('reset called');
         setCities([]);
         setStates([]);
         setSelectedCity([]);
@@ -63,9 +64,11 @@ function ModifyProperty({data, showFlag, fn, mode}) {
 
     const handleCloseButton = () => {
         if (mode === 'edit' && fn && fn.handleEditPropertyClose) {
+            reset();
             fn.handleEditPropertyClose();
         }
         if (mode === 'add' && fn && fn.handleAddPropertyClose) {
+            reset();
             fn.handleAddPropertyClose();
         }
     }
@@ -89,10 +92,13 @@ function ModifyProperty({data, showFlag, fn, mode}) {
     }
 
     const editProperty = () => {
-        // console.log('propertyForm => ', propertyForm);
+        console.log('propertyForm => ', propertyForm);
         const tempObj = {...propertyForm};
         modifyProperty(dispatch, tempObj, (err, successFlag) => {
             if (successFlag) {
+                if (fn && fn.refreshData) {
+                    fn.refreshData();
+                }
                 handleCloseButton();
             }
         });
@@ -144,6 +150,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
     }
 
     const getRoomTypeName = (id) => {
+        console.log('getRoomTypeName id -> ', id);
         const roomMap = {};
         roomTypes.map(rt => {
             roomMap[rt.roomtypeid] = rt.roomtypename
@@ -155,7 +162,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
         <div className="container">
             <Modal show={showFlag} dialogClassName="modal-90w" onHide={handleCloseButton}>
                 <Modal.Header closeButton>
-                    <Modal.Title>{mode && mode === 'edit' ? `Modify Property - ${data.hotel_id}` : 'Add Property'}</Modal.Title>
+                    <Modal.Title>{mode && mode === 'edit' ? `Modify Property - ${data.hotel_name}` : 'Add Property'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="property_details">
@@ -284,7 +291,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
                                             {
                                                 rooms.map((r, i) => <tr>
                                                     <td>{i + 1}</td>
-                                                    <td>{getRoomTypeName(r.type)}</td>
+                                                    <td>{r.roomtypename}</td>
                                                     <td>{r.count}</td>
                                                     </tr>
                                                 )

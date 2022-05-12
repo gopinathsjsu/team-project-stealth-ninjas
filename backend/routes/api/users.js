@@ -51,7 +51,7 @@ router.post(
   [
     check("cust_name", "Name is required").not().isEmpty(),
     check("cust_email", "Please enter a valid email").isEmail(),
-    check("cust_phone", "Name is required").not().isEmpty(),
+    check("cust_phone", "Phone is required").not().isEmpty(),
     check(
       "cust_password",
       "password should be minimum of length 6 charcaters"
@@ -83,13 +83,13 @@ router.post(
                 if (error) {
                   res.status(400).send(error.message);
                 } else {
-                  res.status(200).send("success");
+                  res.json({success: true, data: results});
                 }
               }
             );
           } else {
             //console.log("User already existed!");
-            res.status(400).send("user already exists");
+            res.status(400).json({success: true, message: "user already exists"});
           }
         }
       );

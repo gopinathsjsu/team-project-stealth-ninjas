@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Form, Button, Image, Table, Spinner } from 'react-bootstrap';
 import { getHotelDetails, filterHotelsWithAmenities, getShortDate, bookRoom } from '../utils';
 import { useSelector, useDispatch } from 'react-redux';
+import Loader from './Loader';
 import { FaUser, FaDumbbell, FaSwimmer, FaUtensils, FaParking } from 'react-icons/fa';
 import {pluck} from 'underscore';
 // import { useSelector } from 'react-redux';
@@ -25,10 +26,13 @@ export function HotelDetails() {
     const [filterForm, setFilterForm] = useState(resetFilterState);
     const hotelDetails = useSelector(state => state.hoteldetails.data);
     const loading = useSelector(state => state.hoteldetails.loading);
+    const [loadingFilters, setLoadingFilters] = useState(false);
+    const [booking, setBooking] = useState(false);
     const { hotelID } = urlParams;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const [dynamicPricing, setDynamicPricing] = useState({});
+    const [dynamicDiscountedPricing, setDynamicDiscountedPricing] = useState({});
     const [guestTracker, setGuestTracker] = useState({});
     const [filterRooms, setFilterRooms] = useState([]);
 
@@ -36,19 +40,25 @@ export function HotelDetails() {
         getHotelDetails(dispatch, {hotelID, startDate, endDate})
     }, []);
 
+    useEffect(() => {
+        console.log('filterForm changed');
+        getFilterValues();
+    }, [filterForm]);
+
     const getFilterValues = () => {
         console.log('filter hit');
         async function fetchFilterData() {
-            // Make a call here
             const filterData = await filterHotelsWithAmenities({...filterForm, hotel_id: hotelID, start_date: startDate, end_date: endDate});
             const {data} = filterData.data;
             console.log(data.rooms);
             if (data.rooms && Array.isArray(data.rooms)) {
+                setLoadingFilters(false);
                 const filters = pluck(data.rooms, 'roomtypename');
-                // console.log(filters);
                 setFilterRooms(filters);
             }
         }
+        // Loader on
+        setLoadingFilters(true);
         fetchFilterData();
     };
 
@@ -57,7 +67,7 @@ export function HotelDetails() {
         setFilterForm({
             ...filterForm,
             [id]: checked
-        }, getFilterValues());
+        });
     }
 
     const calculateDynamicPrice = (e, rd) => {
@@ -81,6 +91,27 @@ export function HotelDetails() {
         setDynamicPricing(tmpPrices);
     }
 
+    const calculateDiscountedDynamicPrice = (e, rd) => {
+        const guest_count = parseInt(e.target.value);
+        const tmpPrices = {...dynamicPricing};
+        const config = {
+            1: 1,
+            2: 0.7,
+            3: 0.55,
+            4: 0.45
+        };
+        if (!rd.roomdiscountedprice || !guest_count || guest_count > 4) {
+            tmpPrices[rd.roomtypename] = rd.roomdiscountedprice;
+        }
+        tmpPrices[rd.roomtypename] = Math.trunc(parseInt(rd.roomdiscountedprice) * guest_count * config[guest_count]);
+        console.log(tmpPrices);
+        setGuestTracker({
+            ...guestTracker,
+            [rd.roomtypename]: guest_count
+        });
+        setDynamicDiscountedPricing(tmpPrices);
+    }
+
     const bookHotelRoom = (row) => {
         const roomtypename = row.roomtypename;
         const numberofguests = guestTracker[roomtypename];
@@ -94,9 +125,10 @@ export function HotelDetails() {
             amount,
             numberofguests
         };
-        // console.log('bookHotelRoom -> ', bookingObj);
+        setBooking(true);
         bookRoom(dispatch, bookingObj, (err, successFlag) => {
             if (successFlag) {
+                setBooking(false);
                 navigate('/bookings');
             }
         });
@@ -110,14 +142,26 @@ export function HotelDetails() {
         return filterRooms.indexOf(roomtypename) !== -1 ? true : false;
     }
 
+    const getDiscountedStyling = price => {
+        if (!price) {
+            return;
+        }
+        if (price && price > 0) {
+            return 'discounted-price';
+        }
+    }
+
+    const calculatePrices = (e, rd) => {
+        calculateDynamicPrice(e, rd);
+        calculateDiscountedDynamicPrice(e, rd);
+    }
+
     return (
         <div className="container" style={{marginTop: '10px'}}>
-            {loading ? 
-                <Spinner animation="border" size="lg" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner> : ''
+            {(loading || booking) ? 
+                <Loader /> : ''
             }
-            {!loading && hotelDetails ? 
+            {(!loading && !booking) && hotelDetails ? 
                 <Row>
                     <Row>
                         <Col xs={4}>
@@ -132,7 +176,6 @@ export function HotelDetails() {
                         </Col>
                     </Row>
                     <Row className="room_filters">
-                        <p>here it is</p>
                         <Form.Check 
                             type="switch"
                             className="inline-filter"
@@ -166,7 +209,7 @@ export function HotelDetails() {
                             onChange={onSwitchChange}
                           />
                     </Row>
-                    <Row className="room_details">
+                    {loadingFilters ? <Loader /> : <Row className="room_details">
                         <Table responsive>
                           <thead>
                             <tr>
@@ -192,9 +235,12 @@ export function HotelDetails() {
                                                 Array.from({ length: Number(rd.maxguests) }).map(() => <FaUser />)
                                             }
                                         </td>
-                                        <td>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</td>
+                                        <td className="pricing_display">
+                                            {rd.roomdiscountedprice && <p>${dynamicDiscountedPricing[rd.roomtypename] ? dynamicDiscountedPricing[rd.roomtypename] : rd.roomdiscountedprice}</p>}
+                                            <p className={getDiscountedStyling(rd.roomdiscountedprice)}>${dynamicPricing[rd.roomtypename] ? dynamicPricing[rd.roomtypename] : rd.roombaseprice}</p>
+                                        </td>
                                         <td>
-                                            <Form.Select aria-label="Guest count" onChange={e => calculateDynamicPrice(e, rd)}>
+                                            <Form.Select aria-label="Guest count" onChange={e => calculatePrices(e, rd)}>
                                               <option value="0">Guest count</option>
                                               {
                                                 Array.from({ length: Number(rd.maxguests) }).map((x, i) => <option value={i+1}>{i+1}</option>)
@@ -209,7 +255,7 @@ export function HotelDetails() {
                             }
                           </tbody>
                         </Table>
-                    </Row>
+                    </Row>}
                 </Row> : ''
             }
         </div>

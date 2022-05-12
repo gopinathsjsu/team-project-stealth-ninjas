@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
+import { Row, Col, Form, Button } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import DatePicker from "react-datepicker";
 import PropertyCard from "./PropertyCard";
+import Loader from "./Loader";
 import ModifyProperty from "./ModifyProperty";
 import { getAllHotels } from "../utils";
 import { useNavigate } from 'react-router-dom';
@@ -39,7 +40,8 @@ export function AdminDashboard() {
     const [editData, setEditData] = useState({});
 
     useEffect(() => {
-        getAllHotels(dispatch);
+        // getAllHotels(dispatch);
+        submit();
     }, [])
 
     const openHotel = (dispatch, {hotel_id}) => {
@@ -98,6 +100,8 @@ export function AdminDashboard() {
             image: data.image,
             summary: data.summary
         };
+        console.log('filteredData data ===> ', filteredData);
+
         setEditData(filteredData);
         toggleModal('edit');
     }
@@ -139,9 +143,7 @@ export function AdminDashboard() {
             </Row>
             <Row>
                 {
-                    loading ? <Spinner animation="border" size="lg" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner> : 
+                    loading ? <Loader /> : 
                         <>
                             <Row>
                                 { hotelsData ? <p style={{marginBottom: '5px'}} >{hotelsData.length} properties found</p> : 
