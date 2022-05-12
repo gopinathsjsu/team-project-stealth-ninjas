@@ -69,10 +69,11 @@ function Navbar() {
     return(
         <nav className="navbar navbar-light bgnew-light justify-content-between">
             <div className="container">
-                <div className="col-1">
-                    <a className="navbar-brand" onClick={() => home()}>Ninja Couch {isAdmin ? <span style={{fontSize: '10px'}}>Admin</span> : ''}</a>
+                <div className="col-2">
+                    <img onClick={() => home()} className="navbar-brand-logo" src="NinjaCouchLogo.png" />
+                    {isAdmin ? <span style={{fontSize: '10px', position: 'absolute',marginTop: '20px'}}>Admin</span> : ''}
                 </div>
-                <div className="col-9">
+                <div className="col-8">
                     {/* 
                         <input style={{display: 'inline', width: '91%', borderTopRightRadius: 0, borderBottomRightRadius: 0}} className="form-control mr-sm-2" type="search" placeholder="Enter search text" aria-label="Search" />
                         <Button style={{display: 'inline', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginTop: '-4px'}} variant="warning">Search</Button>
