@@ -28,10 +28,10 @@ let connection = mysql.createConnection({
 // get the room available data in specified range data in a particular hotel
 router.post("/getrooms", checkAuth, (req, res) => {
   // console.log(req.user);
-  let summer_start_date = new Date("05/01/2023"); // either mm/dd/yyyy format or yyyy-mm-dd
+  let summer_start_date = new Date("05/01/2022"); // either mm/dd/yyyy format or yyyy-mm-dd
   //console.log("the summer type of date is " , typeof(summer_start_date));
   //console.log("the summer type of date is " , summer_start_date);
-  let summer_end_date = new Date("06/30/2023");
+  let summer_end_date = new Date("06/30/2022");
   let christmas_start_date = new Date("12/20/2022");
   let christmas_end_date = new Date("01/10/2023");
   let customer_type = req.user.customer_type;
