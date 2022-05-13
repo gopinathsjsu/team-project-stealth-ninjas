@@ -26,6 +26,17 @@ We were always focusing on what's been asked as we wanted to keep it simple and 
 
 Communication has always been the key factor in our team. We had scrum calls twice a week on every thursdays and saturdays which made sure that all of us were making progress in each sprint. We used to discuss what was supposed to be done in that particular sprint and prioritizing the tasks helped us in joining all the pieces of the project easily.
 
+## Area of contribution :
+
+***We divided the modules amongst us equally and worked individually on schema, APIs, UI and the deployment so that everyone would get the opputunity to learn and work on both backend and front end.***
+
+- **Hotel module : Prashanth Subbiah**
+- **Reservation module : Iswarya Mary Gade**
+- **Rooms module : Bollu Rakshith Reddy**
+- **Admin module : Abhinav Kashyap Mandula**
+
+
+
 ## Architecture Diagram
 ![Architecture Diagram](https://user-images.githubusercontent.com/99629982/168196373-774794be-a959-4f60-af10-cbee4963bffa.png)
 
