@@ -339,3 +339,7 @@ video {
   height: 35px;
   cursor: pointer;
 }
+.book-roomtype {
+  font-weight: bold;
+  font-size: 13px;
+}

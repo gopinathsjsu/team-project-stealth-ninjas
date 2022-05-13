@@ -13,6 +13,17 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 export function AdminDashboard() {
 
     const dispatch = useDispatch();
+    const [country, setCountry] = useState([{
+        "isoCode": "US",
+        "name": "United States",
+        "phonecode": "1",
+        "flag": "🇺🇸",
+        "currency": "USD",
+        "latitude": "38.00000000",
+        "longitude": "-97.00000000",
+        "timezones": [
+        ]
+    }]);
     const [state, setState] = useState([
         {
             "name": "California",
@@ -32,6 +43,8 @@ export function AdminDashboard() {
         }
     ]);
     const [cities, setCities] = useState([]);
+    const [allStates, setAllStates] = useState([]);
+
     const hotelsData = useSelector((state) => state.adminhotels.data);
     const loading = useSelector((state) => state.adminhotels.loading);
     const navigate = useNavigate();
@@ -42,6 +55,8 @@ export function AdminDashboard() {
     useEffect(() => {
         // getAllHotels(dispatch);
         submit();
+        setCities(City.getCitiesOfState('US', 'CA'));
+        setAllStates(State.getStatesOfCountry('US'));
     }, [])
 
     const openHotel = (dispatch, {hotel_id}) => {
@@ -74,6 +89,18 @@ export function AdminDashboard() {
             return;
         }
         setCities(City.getCitiesOfState(state.countryCode, state.isoCode));
+    }
+
+    const onCountryChange = (selected) => {
+        setCountry(selected);
+        const [country] = selected;
+        if (!country || !country.isoCode) {
+            return;
+        }
+        // console.log(Country.getStatesOfCountry(country.countryCode));
+        setAllStates(State.getStatesOfCountry(country.isoCode));
+        setState([]);
+        setValue([]);
     }
 
     const toggleModal = (type) => {
@@ -120,7 +147,7 @@ export function AdminDashboard() {
                 </Col>
             </Row>
             <Row className="top_filter" style={{marginTop: '20px'}}>
-                <Col xs={5}>
+                <Col xs={3}>
                     <Typeahead
                       id="city"
                       onChange={selected => {
@@ -131,16 +158,25 @@ export function AdminDashboard() {
                       selected={value}
                     />
                 </Col>
-                <Col xs={5}>
+                <Col xs={3}>
                     <Typeahead xs={1}
                       id="state"
                       onChange={onStateChange}
                       labelKey={option => `${option.name} ${option.countryCode}`}
-                      options={State.getAllStates()}
+                      options={allStates}
                       selected={state}
                     />
                 </Col>
-                <Col xs={2}>
+                <Col xs={3}>
+                    <Typeahead xs={1}
+                      id="country"
+                      onChange={onCountryChange}
+                      labelKey={option => `${option.name} ${option.flag}`}
+                      options={Country.getAllCountries()}
+                      selected={country}
+                    />
+                </Col>
+                <Col xs={3}>
                     <Button variant="outline-primary" style={{width: '100%'}} onClick={() => submit()}>Submit</Button>
                 </Col>
             </Row>

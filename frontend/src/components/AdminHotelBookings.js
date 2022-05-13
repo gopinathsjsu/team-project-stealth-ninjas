@@ -51,24 +51,24 @@ export function AdminHotelBookings() {
             {bookingInfo && bookingInfo.length ? <Table striped bordered hover style={{marginTop: '20px'}}>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Room Name</th>
-                  <th>Booking Date</th>
-                  <th>From Date</th>
-                  <th>To Date</th>
-                  <th>Total</th>
-                  <th>Guests</th>
+                  <th style={{textAlign: 'center'}}>Reservation ID</th>
+                  <th style={{textAlign: 'center'}}>Room Name</th>
+                  <th style={{textAlign: 'center'}}>Booking Date</th>
+                  <th style={{textAlign: 'center'}}>From Date</th>
+                  <th style={{textAlign: 'center'}}>To Date</th>
+                  <th style={{textAlign: 'center'}}>Total</th>
+                  <th style={{textAlign: 'center'}}>Guests</th>
                 </tr>
               </thead>
               <tbody>
                 {bookingInfo.map(booking => <tr key={booking.reservation_id}>
-                              <td>{booking.reservation_id}</td>
-                              <td>{booking.roomtypename ? booking.roomtypename : 'Unknown'}</td>
-                              <td>{getShortDate(booking.booking_date)}</td>
-                              <td>{getShortDate(booking.start_date)}</td>
-                              <td>{getShortDate(booking.end_date)}</td>
-                              <td>{booking.amount}</td>
-                              <td>{Array.from({ length: Number(booking.numberofguests) }).map((x, i) => <FaUser key={i} />)}
+                              <td style={{textAlign: 'center'}}>{booking.reservation_id}</td>
+                              <td style={{textAlign: 'center'}}>{booking.roomtypename ? booking.roomtypename : 'Unknown'}</td>
+                              <td style={{textAlign: 'center'}}>{getShortDate(booking.booking_date)}</td>
+                              <td style={{textAlign: 'center'}}>{getShortDate(booking.start_date)}</td>
+                              <td style={{textAlign: 'center'}}>{getShortDate(booking.end_date)}</td>
+                              <td style={{textAlign: 'center'}}>{booking.amount}</td>
+                              <td style={{textAlign: 'center'}}>{Array.from({ length: Number(booking.numberofguests) }).map((x, i) => <FaUser key={i} />)}
                               </td>
                         </tr>)} 
               </tbody>

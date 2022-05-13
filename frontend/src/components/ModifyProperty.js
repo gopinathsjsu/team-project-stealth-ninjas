@@ -19,8 +19,10 @@ function ModifyProperty({data, showFlag, fn, mode}) {
         hotel_phone: '',
         city: ''
     };
+    const [country, setCountry] = useState([]);
     const [cities, setCities] = useState([]);
     const [states, setStates] = useState([]);
+    const [allStates, setAllStates] = useState([]);
     const [selectedCity, setSelectedCity] = useState([]);
     const [selectedState, setSelectedState] = useState([]);
     const [roomTypes, setRoomTypes] = useState([]);
@@ -31,7 +33,9 @@ function ModifyProperty({data, showFlag, fn, mode}) {
 
     useEffect(() => {
         // setCities(City.getCitiesOfState('US', 'CA'));
+        setCities(City.getCitiesOfState('US', 'CA'));
         setStates(State.getStatesOfCountry('US'));
+        setAllStates(State.getStatesOfCountry('US'));
         async function fetchData() {
             const roomTypes = await getRoomTypes();
             setRoomTypes(roomTypes);
@@ -106,7 +110,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
 
     const submitProperty = () => {
         // Add shop id here to the object
-        console.log('submit product called ==> ',mode, propertyForm);
+        // console.log('submit product called ==> ',mode, propertyForm);
         if (mode === 'add') {
             createProperty();
         } else {
@@ -135,6 +139,19 @@ function ModifyProperty({data, showFlag, fn, mode}) {
         const tempForm = {...propertyForm};
         tempForm[fieldName] = e.target.value;
         setPropertyForm(tempForm);
+    }
+
+    const onCountryChange = (selected) => {
+        setCountry(selected);
+        const [country] = selected;
+        console.log('country -> ', country);
+        if (!country || !country.isoCode) {
+            return;
+        }
+        propertyForm.country = selected && selected[0] && selected[0].name;
+        setAllStates(State.getStatesOfCountry(country.isoCode));
+        setSelectedState([]);
+        setSelectedCity([]);
     }
 
     const addSelectedRoom = () => {
@@ -229,6 +246,14 @@ function ModifyProperty({data, showFlag, fn, mode}) {
                             value={propertyForm.summary}
                             onChange={onPropertyFormChange}
                           />
+                        <Form.Label htmlFor="country">Country</Form.Label>
+                        <Typeahead
+                          id="country"
+                          onChange={onCountryChange}
+                          labelKey={option => `${option.name} ${option.flag}`}
+                          options={Country.getAllCountries()}
+                          selected={country}
+                        />
                         <Form.Label htmlFor="state">State</Form.Label>
                         <Typeahead
                           id="state"
@@ -238,7 +263,7 @@ function ModifyProperty({data, showFlag, fn, mode}) {
                             propertyForm.state = selected && selected[0] && selected[0].name;
                           }}
                           labelKey={option => `${option.name}`}
-                          options={states}
+                          options={allStates}
                           selected={selectedState}
                         />
                         <Form.Label htmlFor="city">City</Form.Label>
