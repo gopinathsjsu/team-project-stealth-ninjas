@@ -45,6 +45,10 @@ Communication has always been the key factor in our team. We had scrum calls twi
 
 ![UpdatedClassDiagram](https://user-images.githubusercontent.com/99699489/166339026-2aa764dd-b200-4232-8298-68bdcfb2fe24.png)
 
+## Project report
+
+[https://stealth-ninjas.atlassian.net/jira/software/projects/SN/boards/1](https://stealth-ninjas.atlassian.net/jira/software/projects/SN/boards/1)
+
 ## Feature set
 
 ### Employee/Admin ###
@@ -91,4 +95,5 @@ Each time customers makes a reservation, he/she would be getting few reward poin
 ### View booking Details ###
 
 A customer can view their booking details by view bookings API once they've made the booking.
+
 
