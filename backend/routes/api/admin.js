@@ -108,7 +108,7 @@ router.get("/getallhotels", [], async (req, res) => {
         if (results && results.length !== 0) {
           res.json({ success: true, data: results });
         } else {
-          res.send("failure");
+          res.json({ success: true, data: [] });
         }
       }
     );

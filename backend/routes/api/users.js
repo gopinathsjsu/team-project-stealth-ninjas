@@ -134,7 +134,7 @@ router.post(
                     expiresIn: 10080000,
                   });
                   res.cookie("nc_token", token, { httpOnly: true });
-                  res.json({ success: true, token, user: results[0], isLoggedIn: true });
+                  res.json({ success: true, token, user: {...results[0], isLoggedIn: true}, isLoggedIn: true });
                 }
               }
             );

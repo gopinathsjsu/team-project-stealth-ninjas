@@ -120,7 +120,7 @@ export function HotelDetails() {
     const bookHotelRoom = (row) => {
         const roomtypename = row.roomtypename;
         const numberofguests = guestTracker[roomtypename];
-        const amount = dynamicPricing[roomtypename];
+        const amount = dynamicDiscountedPricing[roomtypename] ? dynamicDiscountedPricing[roomtypename] : dynamicPricing[roomtypename];
         const bookingObj = {
             hotel_id: hotelID,
             booking_date: getShortDate(new Date),

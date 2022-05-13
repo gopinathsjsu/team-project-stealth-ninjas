@@ -17,6 +17,17 @@ export function Home() {
         startDate: new Date(),
         endDate: new Date()
     });
+    const [country, setCountry] = useState([{
+        "isoCode": "US",
+        "name": "United States",
+        "phonecode": "1",
+        "flag": "🇺🇸",
+        "currency": "USD",
+        "latitude": "38.00000000",
+        "longitude": "-97.00000000",
+        "timezones": [
+        ]
+    }]);
     const [state, setState] = useState([
         {
             "name": "California",
@@ -26,6 +37,7 @@ export function Home() {
             "longitude": "-119.41793240"
         }
     ]);
+    const [allStates, setAllStates] = useState([]);
     const [value, setValue] = useState([
         {
             "name": "San Jose",
@@ -43,6 +55,7 @@ export function Home() {
     useEffect(() => {
         submit();
         setCities(City.getCitiesOfState('US', 'CA'));
+        setAllStates(State.getStatesOfCountry('US'));
     }, [])
 
     const openHotel = (dispatch, {hotel_id}) => {
@@ -71,12 +84,24 @@ export function Home() {
 
     const onStateChange = (selected) => {
         setState(selected);
-        console.log(selected);
         const [state] = selected;
         if (!state || !state.countryCode || !state.isoCode) {
             return;
         }
         setCities(City.getCitiesOfState(state.countryCode, state.isoCode));
+    }
+
+    const onCountryChange = (selected) => {
+        setCountry(selected);
+        const [country] = selected;
+        console.log('country -> ', country);
+        if (!country || !country.isoCode) {
+            return;
+        }
+        // console.log(Country.getStatesOfCountry(country.countryCode));
+        setAllStates(State.getStatesOfCountry(country.isoCode));
+        setState([]);
+        setValue([]);
     }
     // console.log(City.getAllCities())
     // console.log(State.getAllStates())
@@ -84,7 +109,7 @@ export function Home() {
     return (
         <div className="home container">
             <Row className="top_filter">
-                <Col xs={3}>
+                <Col xs={2}>
                     <Typeahead
                       id="city"
                       onChange={selected => {
@@ -95,13 +120,22 @@ export function Home() {
                       selected={value}
                     />
                 </Col>
-                <Col xs={3}>
+                <Col xs={2}>
                     <Typeahead xs={1}
                       id="state"
                       onChange={onStateChange}
                       labelKey={option => `${option.name} ${option.countryCode}`}
-                      options={State.getAllStates()}
+                      options={allStates}
                       selected={state}
+                    />
+                </Col>
+                <Col xs={2}>
+                    <Typeahead xs={1}
+                      id="country"
+                      onChange={onCountryChange}
+                      labelKey={option => `${option.name} ${option.flag}`}
+                      options={Country.getAllCountries()}
+                      selected={country}
                     />
                 </Col>
                 <Col xs={2}>
