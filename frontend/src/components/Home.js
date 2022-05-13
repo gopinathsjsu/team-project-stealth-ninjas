@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Country, State, City }  from 'country-state-city';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import "react-datepicker/dist/react-datepicker.css";
+import moment from 'moment';
 //Define a Home Component
 export function Home() {
 
@@ -139,10 +140,10 @@ export function Home() {
                     />
                 </Col>
                 <Col xs={2}>
-                    <DatePicker className="form-control" selected={searchForm.startDate} onChange={(date:Date) => setSearchForm({...searchForm, startDate: date})} />
+                    <DatePicker className="form-control" selected={searchForm.startDate} onChange={(date:Date) => setSearchForm({...searchForm, startDate: date})} minDate={moment().toDate()} />
                 </Col>
                 <Col xs={2}>
-                    <DatePicker className="form-control" selected={searchForm.endDate} onChange={(date:Date) => setSearchForm({...searchForm, endDate: date})} />
+                    <DatePicker className="form-control" selected={searchForm.endDate} onChange={(date:Date) => setSearchForm({...searchForm, endDate: date})} minDate={moment().toDate()} />
                 </Col>
                 <Col xs={2}>
                     <Button variant="outline-primary" style={{width: '100%'}} onClick={() => submit()}>Submit</Button>
