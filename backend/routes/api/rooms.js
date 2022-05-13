@@ -111,10 +111,10 @@ router.post("/getrooms", checkAuth, (req, res) => {
                     results[i].roomdiscountedprice = Math.trunc(
                       customer_loyalty_discount *
                         days *
-                        results[i].roombaseprice
+                        results[i].roombaseprice * 1.2
                     );
                     results[i].roombaseprice = Math.trunc(
-                      days * results[i].roombaseprice
+                      days * results[i].roombaseprice * 1.2
                     );
                   }
                   res.json({
